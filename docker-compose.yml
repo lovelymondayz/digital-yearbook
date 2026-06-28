@@ -1,0 +1,69 @@
+services:
+  db:
+    container_name: yearbook-db
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${DB_USER:-yearbook}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-yearbook_secret}
+      POSTGRES_DB: ${DB_NAME:-yearbook}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "${DB_PORT:-5434}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-yearbook} -d ${DB_NAME:-yearbook}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - backend
+
+  backend:
+    container_name: yearbook-backend
+    image: digital-yearbook-backend:latest
+    environment:
+      ENVIRONMENT: ${ENVIRONMENT:-production}
+      PORT: 8080
+      DATABASE_URL: postgres://${DB_USER:-yearbook}:${DB_PASSWORD:-yearbook_secret}@db:5432/${DB_NAME:-yearbook}?sslmode=disable
+      JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
+      JWT_ISSUER: digital-yearbook
+      FRONTEND_URL: http://localhost:3000
+      FRONTEND_URL_PROD: https://yearbook.client.arjism.com
+      IMMICH_URL: ${IMMICH_URL:-http://immich_server:2283}
+      IMMICH_API_KEY: ${IMMICH_API_KEY:-}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+    ports:
+      - "${API_PORT:-8081}:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - backend
+      - immich_default
+
+  frontend:
+    container_name: yearbook-frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ${API_URL:-}
+    ports:
+      - "${FRONTEND_PORT:-3001}:80"
+    depends_on:
+      backend:
+        condition: service_started
+    restart: unless-stopped
+    networks:
+      - backend
+
+volumes:
+  pgdata:
+
+networks:
+  backend:
+    driver: bridge
+  immich_default:
+    external: true
