@@ -2,7 +2,7 @@ import { lazy, Suspense } from "react";
 import { Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout";
 import HomePage from "./pages/HomePage";
-import FlipBookPage from "./pages/FlipBookPage";
+import FlipBookRouter from "./components/FlipBookRouter";
 
 // Lazy-loaded pages — not needed on initial load
 const YearbookPage = lazy(() => import("./pages/YearbookPage"));
@@ -21,16 +21,13 @@ export default function App() {
   return (
     <Routes>
       {/* Full-canvas flipbook route — no Navbar/Footer */}
-      <Route path="/yearbook/:year(\\d+)" element={
-        <Suspense fallback={<LoadingFallback />}><FlipBookPage /></Suspense>
+      <Route path="/yearbook/:year" element={
+        <Suspense fallback={<LoadingFallback />}><FlipBookRouter /></Suspense>
       } />
 
       <Route element={<Layout />}>
         <Route path="/" element={<HomePage />} />
 
-        <Route path="/yearbook/:slug" element={
-          <Suspense fallback={<LoadingFallback />}><YearbookPage /></Suspense>
-        } />
         <Route path="/student/:id" element={
           <Suspense fallback={<LoadingFallback />}><StudentPage /></Suspense>
         } />
