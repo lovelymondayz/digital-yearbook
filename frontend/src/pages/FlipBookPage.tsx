@@ -111,8 +111,8 @@ export default function FlipBookPage() {
   const yearNum = year ? parseInt(year, 10) : data?.year || 0;
 
   return (
-    <div className="flex-1 flex flex-col relative bg-gradient-to-b from-slate-900 to-slate-950 text-white font-sans overflow-hidden">
-      {/* Header — positioned at top of main area */}
+    <div className="fixed inset-0 z-50 bg-gradient-to-b from-slate-900 to-slate-950 text-white font-sans">
+      {/* Header */}
       <div className="pointer-events-none absolute top-4 left-0 z-10 w-full text-center">
         <Link
           to="/"
@@ -127,8 +127,8 @@ export default function FlipBookPage() {
         <p className="mt-1 text-sm opacity-70">Digital Yearbook Memories</p>
       </div>
 
-      {/* 3D Flipbook — fills remaining main area, centered */}
-      <div className="flex-1 relative">
+      {/* 3D Flipbook — full viewport */}
+      <div className="absolute inset-0">
         <Suspense
           fallback={
             <div className="flex h-full w-full items-center justify-center text-white/50">

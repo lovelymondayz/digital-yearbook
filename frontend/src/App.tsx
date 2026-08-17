@@ -20,16 +20,13 @@ const NotFoundPage = lazy(() => import("./pages/NotFoundPage"));
 export default function App() {
   return (
     <Routes>
+      {/* Full-canvas flipbook route — no Navbar/Footer */}
+      <Route path="/yearbook/:year(\\d+)" element={
+        <Suspense fallback={<LoadingFallback />}><FlipBookPage /></Suspense>
+      } />
+
       <Route element={<Layout />}>
         <Route path="/" element={<HomePage />} />
-        <Route path="/yearbook/:year" element={<FlipBookPage />} />
-
-        <Route path="/admin/login" element={
-          <Suspense fallback={<LoadingFallback />}><LoginPage /></Suspense>
-        } />
-        <Route path="/admin/register" element={
-          <Suspense fallback={<LoadingFallback />}><RegisterPage /></Suspense>
-        } />
 
         <Route path="/yearbook/:slug" element={
           <Suspense fallback={<LoadingFallback />}><YearbookPage /></Suspense>
@@ -45,6 +42,12 @@ export default function App() {
         } />
         <Route path="/dashboard" element={
           <Suspense fallback={<LoadingFallback />}><DashboardPage /></Suspense>
+        } />
+        <Route path="/admin/login" element={
+          <Suspense fallback={<LoadingFallback />}><LoginPage /></Suspense>
+        } />
+        <Route path="/admin/register" element={
+          <Suspense fallback={<LoadingFallback />}><RegisterPage /></Suspense>
         } />
         <Route path="/admin/yearbooks" element={
           <Suspense fallback={<LoadingFallback />}><AdminYearbooksPage /></Suspense>
