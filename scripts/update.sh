@@ -1,5 +1,5 @@
 #!/bin/bash
-# Manual update script — pull latest, rebuild, restart
+# Manual update script — pull latest, rebuild, recreate containers
 # Usage: ./scripts/update.sh [--force]
 # Prerequisite: git push origin main (run this AFTER pushing)
 
@@ -32,10 +32,10 @@ else
 fi
 
 echo "🔨 Building..."
-$COMPOSE build
+$COMPOSE build --no-cache
 
-echo "🚀 Restarting..."
-$COMPOSE up -d
+echo "🚀 Recreating with latest image..."
+$COMPOSE up -d --force-recreate
 
 echo "⏳ Waiting for services..."
 sleep 5
