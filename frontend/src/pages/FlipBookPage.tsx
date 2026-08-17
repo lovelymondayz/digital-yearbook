@@ -111,9 +111,9 @@ export default function FlipBookPage() {
   const yearNum = year ? parseInt(year, 10) : data?.year || 0;
 
   return (
-    <div className="h-full w-full overflow-hidden bg-gradient-to-b from-slate-900 to-slate-950 text-white font-sans">
-      {/* Header — positioned below the canvas layer */}
-      <div className="pointer-events-none fixed top-4 left-0 z-10 w-full text-center">
+    <div className="flex-1 flex flex-col relative bg-gradient-to-b from-slate-900 to-slate-950 text-white font-sans overflow-hidden">
+      {/* Header — positioned at top of main area */}
+      <div className="pointer-events-none absolute top-4 left-0 z-10 w-full text-center">
         <Link
           to="/"
           className="pointer-events-auto inline-flex items-center gap-2 text-white/50 hover:text-white transition-colors mb-2"
@@ -121,14 +121,14 @@ export default function FlipBookPage() {
           <ArrowLeft className="w-4 h-4" />
           Back
         </Link>
-        <h1 className="text-[clamp(2rem,5vw,4rem)] font-extrabold tracking-[4px]">
+        <h1 className="text-[clamp(1.5rem,4vw,3rem)] font-extrabold tracking-[4px]">
           {data?.title || `CLASS OF ${year || "..."}`}
         </h1>
-        <p className="mt-2 text-sm opacity-70">Digital Yearbook Memories</p>
+        <p className="mt-1 text-sm opacity-70">Digital Yearbook Memories</p>
       </div>
 
-      {/* 3D Flipbook — explicit full-viewport canvas */}
-      <div className="fixed inset-0 z-0">
+      {/* 3D Flipbook — fills remaining main area, centered */}
+      <div className="flex-1 relative">
         <Suspense
           fallback={
             <div className="flex h-full w-full items-center justify-center text-white/50">
@@ -142,7 +142,7 @@ export default function FlipBookPage() {
 
       {/* Page indicator */}
       {pages.length > 0 && (
-        <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-20 text-white/40 text-sm">
+        <div className="absolute bottom-20 left-1/2 -translate-x-1/2 z-20 text-white/40 text-sm">
           Page {currentPage} of {pages.length}
         </div>
       )}
