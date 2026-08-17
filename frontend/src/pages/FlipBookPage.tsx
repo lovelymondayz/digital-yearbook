@@ -113,7 +113,7 @@ export default function FlipBookPage() {
   return (
     <div className="h-full w-full overflow-hidden bg-gradient-to-b from-slate-900 to-slate-950 text-white font-sans">
       {/* Header */}
-      <div className="pointer-events-none fixed top-20 left-0 z-10 w-full text-center" style={{ maxWidth: "calc(100% - 18rem)" }}>
+      <div className="pointer-events-none fixed top-20 left-0 z-10 w-full text-center">
         <Link
           to="/"
           className="pointer-events-auto inline-flex items-center gap-2 text-white/50 hover:text-white transition-colors mb-2"

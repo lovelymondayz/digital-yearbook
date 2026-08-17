@@ -2,6 +2,11 @@ services:
   db:
     container_name: yearbook-db
     image: postgres:16-alpine
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
     environment:
       POSTGRES_USER: ${DB_USER:-yearbook}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-yearbook_secret}

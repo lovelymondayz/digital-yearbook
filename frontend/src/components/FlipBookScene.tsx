@@ -2,7 +2,7 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import { Color, AmbientLight, DirectionalLight, Clock } from "three";
 import { FlipBook } from "quick_flipbook";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 interface FlipBookSceneProps {
   pages: string[];
@@ -30,11 +30,16 @@ function Book({ pages }: { pages: string[] }) {
 
   useEffect(() => {
     const updateBookScale = () => {
-      const isMobile = window.innerWidth < 768;
-      if (isMobile) {
-        book.scale.set(0.55, 1.4, 1);
+      const w = window.innerWidth;
+      if (w < 640) {
+        // Mobile: fill width, tall aspect
+        book.scale.set(1.6, 2.2, 1);
+      } else if (w < 1024) {
+        // Tablet
+        book.scale.set(2.0, 2.6, 1);
       } else {
-        book.scale.set(0.9, 2, 1);
+        // Desktop: big book, centered
+        book.scale.set(2.4, 3.0, 1);
       }
     };
     updateBookScale();
@@ -87,8 +92,8 @@ export default function FlipBookScene({ pages }: FlipBookSceneProps) {
     <>
       <Canvas
         camera={{
-          position: [0, 1.2, 4.5],
-          fov: 45,
+          position: [0, 0.5, 6],
+          fov: 50,
           near: 0.1,
           far: 1000,
         }}
@@ -99,6 +104,7 @@ export default function FlipBookScene({ pages }: FlipBookSceneProps) {
         onCreated={({ scene }) => {
           scene.background = new Color(0x0f172a);
         }}
+        style={{ width: "100%", height: "100%" }}
       >
         <primitive object={new AmbientLight(0xffffff, 2)} />
         <primitive
@@ -109,8 +115,8 @@ export default function FlipBookScene({ pages }: FlipBookSceneProps) {
         <OrbitControls
           enableDamping
           enablePan={false}
-          minDistance={2}
-          maxDistance={8}
+          minDistance={3}
+          maxDistance={10}
           maxPolarAngle={Math.PI / 2}
         />
 
@@ -118,13 +124,13 @@ export default function FlipBookScene({ pages }: FlipBookSceneProps) {
       </Canvas>
 
       <button
-        className="prev-btn fixed bottom-6 left-5 z-20 rounded-full bg-white/10 px-5 py-2.5 text-sm backdrop-blur-xl hover:bg-white/20 transition-colors"
+        className="prev-btn fixed bottom-6 left-4 z-20 rounded-full bg-white/10 px-4 py-2 text-sm backdrop-blur-xl hover:bg-white/20 transition-colors sm:px-5 sm:py-2.5"
       >
         Previous
       </button>
 
       <button
-        className="next-btn fixed bottom-6 right-5 z-20 rounded-full bg-white/10 px-5 py-2.5 text-sm backdrop-blur-xl hover:bg-white/20 transition-colors"
+        className="next-btn fixed bottom-6 right-4 z-20 rounded-full bg-white/10 px-4 py-2 text-sm backdrop-blur-xl hover:bg-white/20 transition-colors sm:px-5 sm:py-2.5"
       >
         Next
       </button>
