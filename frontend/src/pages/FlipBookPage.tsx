@@ -112,8 +112,8 @@ export default function FlipBookPage() {
 
   return (
     <div className="h-full w-full overflow-hidden bg-gradient-to-b from-slate-900 to-slate-950 text-white font-sans">
-      {/* Header */}
-      <div className="pointer-events-none fixed top-20 left-0 z-10 w-full text-center">
+      {/* Header — positioned below the canvas layer */}
+      <div className="pointer-events-none fixed top-4 left-0 z-10 w-full text-center">
         <Link
           to="/"
           className="pointer-events-auto inline-flex items-center gap-2 text-white/50 hover:text-white transition-colors mb-2"
@@ -127,16 +127,18 @@ export default function FlipBookPage() {
         <p className="mt-2 text-sm opacity-70">Digital Yearbook Memories</p>
       </div>
 
-      {/* 3D Flipbook */}
-      <Suspense
-        fallback={
-          <div className="flex h-full items-center justify-center text-white/50">
-            Loading 3D Flipbook...
-          </div>
-        }
-      >
-        <FlipBookScene pages={pages} />
-      </Suspense>
+      {/* 3D Flipbook — explicit full-viewport canvas */}
+      <div className="fixed inset-0 z-0">
+        <Suspense
+          fallback={
+            <div className="flex h-full w-full items-center justify-center text-white/50">
+              Loading 3D Flipbook...
+            </div>
+          }
+        >
+          <FlipBookScene pages={pages} />
+        </Suspense>
+      </div>
 
       {/* Page indicator */}
       {pages.length > 0 && (

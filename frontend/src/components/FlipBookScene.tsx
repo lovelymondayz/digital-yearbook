@@ -33,13 +33,13 @@ function Book({ pages }: { pages: string[] }) {
       const w = window.innerWidth;
       if (w < 640) {
         // Mobile: fill width, tall aspect
-        book.scale.set(1.6, 2.2, 1);
+        book.scale.set(2.2, 3.0, 1);
       } else if (w < 1024) {
         // Tablet
-        book.scale.set(2.0, 2.6, 1);
+        book.scale.set(2.8, 3.8, 1);
       } else {
-        // Desktop: big book, centered
-        book.scale.set(2.4, 3.0, 1);
+        // Desktop: big book, fills viewport
+        book.scale.set(3.2, 4.2, 1);
       }
     };
     updateBookScale();
@@ -92,7 +92,7 @@ export default function FlipBookScene({ pages }: FlipBookSceneProps) {
     <>
       <Canvas
         camera={{
-          position: [0, 0.5, 6],
+          position: [0, 0.5, 7],
           fov: 50,
           near: 0.1,
           far: 1000,
@@ -116,7 +116,7 @@ export default function FlipBookScene({ pages }: FlipBookSceneProps) {
           enableDamping
           enablePan={false}
           minDistance={3}
-          maxDistance={10}
+          maxDistance={14}
           maxPolarAngle={Math.PI / 2}
         />
 
