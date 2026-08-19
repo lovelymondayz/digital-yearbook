@@ -26,6 +26,10 @@ services:
 
   backend:
     container_name: yearbook-backend
+    # build: was missing — the service referenced a pre-built image only, so once
+    # digital-yearbook-backend:latest was pruned the stack could not come back up
+    # without a manual `docker build`. Building from source makes it reproducible.
+    build: ./backend
     image: digital-yearbook-backend:latest
     environment:
       ENVIRONMENT: ${ENVIRONMENT:-production}
