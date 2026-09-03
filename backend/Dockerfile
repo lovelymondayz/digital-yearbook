@@ -42,3 +42,6 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
 
 # Run
 ENTRYPOINT ["/app/server"]
+
+# Run as non-root
+USER 1000:1000

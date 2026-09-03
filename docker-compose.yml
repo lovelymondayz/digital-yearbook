@@ -7,6 +7,8 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
+    env_file:
+      - .env
     environment:
       POSTGRES_USER: ${DB_USER:-yearbook}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-yearbook_secret}
