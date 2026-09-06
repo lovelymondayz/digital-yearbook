@@ -32,14 +32,11 @@ function Book({ pages }: { pages: string[] }) {
     const updateBookScale = () => {
       const w = window.innerWidth;
       if (w < 640) {
-        // Mobile: fill width, tall aspect
-        book.scale.set(3.2, 4.2, 1);
+        book.scale.set(3.5, 4.2, 5);
       } else if (w < 1024) {
-        // Tablet
-        book.scale.set(4.0, 5.4, 1);
+        book.scale.set(3.5, 5.4, 5);
       } else {
-        // Desktop: big book, fills viewport
-        book.scale.set(4.8, 6.4, 1);
+        book.scale.set(3.5, 6.4, 5);
       }
     };
     updateBookScale();
