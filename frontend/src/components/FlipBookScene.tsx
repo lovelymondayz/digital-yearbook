@@ -89,7 +89,7 @@ export default function FlipBookScene({ pages }: FlipBookSceneProps) {
     <>
       <Canvas
         camera={{
-          position: [0, 0.5, 8],
+          position: [0, 10, 2],
           fov: 50,
           near: 0.1,
           far: 1000,
