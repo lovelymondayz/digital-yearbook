@@ -2,15 +2,23 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import { Color, AmbientLight, DirectionalLight, Clock } from "three";
 import { FlipBook } from "quick_flipbook";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef } from "react";
 
 interface FlipBookSceneProps {
   pages: string[];
+  onPageChange?: (page: number) => void;
 }
 
-function Book({ pages }: { pages: string[] }) {
+function Book({
+  pages,
+  onPageChange,
+}: {
+  pages: string[];
+  onPageChange?: (page: number) => void;
+}) {
   const clock = useMemo(() => new Clock(), []);
   const bookRef = useRef<FlipBook | null>(null);
+  const lastPageRef = useRef(-1);
 
   const book = useMemo(() => {
     const instance = new FlipBook({
@@ -44,9 +52,18 @@ function Book({ pages }: { pages: string[] }) {
     return () => window.removeEventListener("resize", updateBookScale);
   }, [book]);
 
+  // Sync page changes to parent
   useFrame(() => {
     const delta = clock.getDelta();
     book.animate(delta);
+
+    if (bookRef.current && onPageChange) {
+      const currentPage = bookRef.current.currentPage;
+      if (currentPage !== lastPageRef.current) {
+        lastPageRef.current = currentPage;
+        onPageChange(currentPage);
+      }
+    }
   });
 
   useEffect(() => {
@@ -71,12 +88,15 @@ function Book({ pages }: { pages: string[] }) {
       window.removeEventListener("keydown", handleKey);
       book.dispose();
     };
-  }, []);
+  }, [book]);
 
   return <primitive object={book} />;
 }
 
-export default function FlipBookScene({ pages }: FlipBookSceneProps) {
+export default function FlipBookScene({
+  pages,
+  onPageChange,
+}: FlipBookSceneProps) {
   if (!pages || pages.length === 0) {
     return (
       <div className="flex h-full items-center justify-center text-white/50">
@@ -117,18 +137,13 @@ export default function FlipBookScene({ pages }: FlipBookSceneProps) {
           maxPolarAngle={Math.PI / 2}
         />
 
-        <Book pages={pages} />
+        <Book pages={pages} onPageChange={onPageChange} />
       </Canvas>
 
-      <button
-        className="prev-btn fixed bottom-6 left-4 z-20 rounded-full bg-white/10 px-4 py-2 text-sm backdrop-blur-xl hover:bg-white/20 transition-colors sm:px-5 sm:py-2.5"
-      >
+      <button className="prev-btn fixed bottom-6 left-4 z-20 rounded-full bg-white/10 px-4 py-2 text-sm backdrop-blur-xl hover:bg-white/20 transition-colors sm:px-5 sm:py-2.5">
         Previous
       </button>
-
-      <button
-        className="next-btn fixed bottom-6 right-4 z-20 rounded-full bg-white/10 px-4 py-2 text-sm backdrop-blur-xl hover:bg-white/20 transition-colors sm:px-5 sm:py-2.5"
-      >
+      <button className="next-btn fixed bottom-6 right-4 z-20 rounded-full bg-white/10 px-4 py-2 text-sm backdrop-blur-xl hover:bg-white/20 transition-colors sm:px-5 sm:py-2.5">
         Next
       </button>
     </>

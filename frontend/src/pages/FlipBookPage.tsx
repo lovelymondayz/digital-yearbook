@@ -34,7 +34,9 @@ export default function FlipBookPage() {
           if (yearsRes.ok) {
             const years = await yearsRes.json();
             if (Array.isArray(years) && years.length > 0) {
-              years.sort((a: { year: number }, b: { year: number }) => b.year - a.year);
+              years.sort(
+                (a: { year: number }, b: { year: number }) => b.year - a.year
+              );
               const latestYear = years[0].year;
               const res = await fetch(`${API_URL}/api/v1/flipbook/${latestYear}`);
               if (res.ok) {
@@ -57,47 +59,10 @@ export default function FlipBookPage() {
     load();
   }, [year]);
 
-  // Poll the book's currentPage via the DOM buttons and keyboard
-  const handlePageChange = useCallback((direction: "next" | "prev") => {
-    setCurrentPage((prev) => {
-      const pages = data?.pages?.map((p) => p.image_url) || [];
-      if (direction === "next") {
-        return Math.min(prev + 1, pages.length || 1);
-      }
-      return Math.max(prev - 1, 1);
-    });
-  }, [data]);
-
-  // Listen for keyboard page navigation
-  useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === "ArrowRight" || e.key === " ") {
-        handlePageChange("next");
-      }
-      if (e.key === "ArrowLeft") {
-        handlePageChange("prev");
-      }
-    };
-    window.addEventListener("keydown", handleKey);
-    return () => window.removeEventListener("keydown", handleKey);
-  }, [handlePageChange]);
-
-  // Override the nav button clicks to also update currentPage
-  useEffect(() => {
-    const nextBtn = document.querySelector<HTMLButtonElement>(".next-btn");
-    const prevBtn = document.querySelector<HTMLButtonElement>(".prev-btn");
-
-    const onNext = () => handlePageChange("next");
-    const onPrev = () => handlePageChange("prev");
-
-    nextBtn?.addEventListener("click", onNext);
-    prevBtn?.addEventListener("click", onPrev);
-
-    return () => {
-      nextBtn?.removeEventListener("click", onNext);
-      prevBtn?.removeEventListener("click", onPrev);
-    };
-  }, [handlePageChange, loading]);
+  // Handle page change from 3D book
+  const handlePageChange = useCallback((page: number) => {
+    setCurrentPage(page);
+  }, []);
 
   if (loading) {
     return (
@@ -136,7 +101,7 @@ export default function FlipBookPage() {
             </div>
           }
         >
-          <FlipBookScene pages={pages} />
+          <FlipBookScene pages={pages} onPageChange={handlePageChange} />
         </Suspense>
       </div>
 
