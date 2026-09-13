@@ -119,7 +119,7 @@ export default function FlipBookScene({
  alpha: true,
  }}
  onCreated={({ scene }) => {
- scene.background = new Color(0x0f172a);
+ scene.background = new Color(0xf1f5f9);
  }}
  style={{ width: "100%", height: "100%" }}
  >

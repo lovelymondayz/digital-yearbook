@@ -16,6 +16,10 @@ None. Full compliance with the global constitution.
 | Database | PostgreSQL 16 |
 | Container | Docker + Docker Compose |
 
+## Design System
+
+Per-project accent: `#1D4ED8` (Blue) — Trustworthy, professional, Thamrin brand.
+
 ## API Versioning
 
 All endpoints live under `/api/v1/`.

@@ -89,7 +89,7 @@ func (h *FlipbookHandler) GetFlipbookPages(w http.ResponseWriter, r *http.Reques
 	// Find the Immich album for this year
 	albumName := r.URL.Query().Get("album")
 	if albumName == "" {
-		albumName = fmt.Sprintf("Graduate %d", year)
+		albumName = fmt.Sprintf("Thamrin Graduate %d", year)
 	}
 	album, err := h.immichService.GetAlbumByName(r.Context(), albumName)
 	if err != nil {
