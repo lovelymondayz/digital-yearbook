@@ -38,14 +38,14 @@ func Load() *Config {
 	return &Config{
 		Environment:   getEnv("ENVIRONMENT", "development"),
 		Port:          port,
-		DatabaseURL:   getEnv("DATABASE_URL", "postgres://postgres:postgres@localhost:5432/yearbook?sslmode=disable"),
-		JWTSecret:     getEnv("JWT_SECRET", "change-me-in-production"),
+		DatabaseURL:   getEnv("DATABASE_URL", "postgres://postgres:***@localhost:5432/yearbook?sslmode=disable"),
+		JWTSecret:     getEnv("JWT_SECRET", ""),
 		JWTIssuer:     getEnv("JWT_ISSUER", "digital-yearbook"),
 		AccessExpiry:  time.Duration(accessMin) * time.Minute,
 		RefreshExpiry: time.Duration(refreshDays) * 24 * time.Hour,
 		AllowedOrigins: []string{
 			getEnv("FRONTEND_URL", "http://localhost:5173"),
-			getEnv("FRONTEND_URL_PROD", "https://yearbook.client.arjism.com"),
+			getEnv("FRONTEND_URL_PROD", "https://yearbook.arjism.com"),
 		},
 		ImmichURL:    getEnv("IMMICH_URL", "https://storage.arjism.com"),
 		ImmichAPIKey: getEnv("IMMICH_API_KEY", ""),

@@ -23,6 +23,12 @@ func main() {
 	// Load configuration
 	cfg := config.Load()
 
+	// Validate critical configuration
+	if cfg.JWTSecret == "" {
+		fmt.Fprintf(os.Stderr, "FATAL: JWT_SECRET environment variable is required\n")
+		os.Exit(1)
+	}
+
 	// Initialize logger
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
 		Level: cfg.LogLevel,
@@ -69,7 +75,6 @@ func main() {
 	r.Use(middleware.Recovery)
 	r.Use(middleware.SecurityHeaders)
 	r.Use(middleware.Logger(logger))
-	r.Use(middleware.CORS(cfg.AllowedOrigins))
 	r.Use(chicors.Handler(chicors.Options{
 		AllowedOrigins:   cfg.AllowedOrigins,
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"},

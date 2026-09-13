@@ -35,7 +35,7 @@ func (s *AuthService) Register(ctx context.Context, req model.RegisterRequest) (
 	var user model.User
 	err = s.db.QueryRow(ctx, `
 		INSERT INTO users (email, password_hash, full_name, role, status)
-		VALUES ($1, $2, $3, 'super_admin', 'active')
+		VALUES ($1, $2, $3, 'admin', 'active')
 		RETURNING id, email, full_name, role, status, created_at, updated_at
 	`, req.Email, string(hash), req.FullName).Scan(
 		&user.ID, &user.Email, &user.FullName, &user.Role, &user.Status, &user.CreatedAt, &user.UpdatedAt,
