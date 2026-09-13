@@ -1,10 +1,10 @@
-import { useState, useEffect, useCallback } from "react";
-import { useParams, Link } from "react-router-dom";
-import { lazy, Suspense } from "react";
-import { ArrowLeft } from "lucide-react";
-import StudentSidebar from "../components/StudentSidebar";
+import { useState, useEffect, useCallback } from react;
+import { useParams, Link } from react-router-dom;
+import { lazy, Suspense } from react;
+import { ArrowLeft } from lucide-react;
+import StudentSidebar from ../components/StudentSidebar;
 
-const FlipBookScene = lazy(() => import("../components/FlipBookScene"));
+const FlipBookScene = lazy(() => import(../components/FlipBookScene));
 
 interface FlipbookData {
   yearbook_id: string;
@@ -27,7 +27,7 @@ export default function FlipBookPage() {
   useEffect(() => {
     const load = async () => {
       try {
-        const API_URL = import.meta.env.VITE_API_URL || "";
+        const API_URL = import.meta.env.VITE_API_URL || ;
 
         if (!year) {
           const yearsRes = await fetch(`${API_URL}/api/v1/flipbook/years`);
@@ -66,8 +66,8 @@ export default function FlipBookPage() {
 
   if (loading) {
     return (
-      <div className="h-screen w-screen flex items-center justify-center bg-gradient-to-b from-slate-900 to-slate-950">
-        <div className="text-white/50 text-lg">Loading Yearbook...</div>
+      <div className=h-screen w-screen flex items-center justify-center bg-surface-alt>
+        <div className=text-text-muted text-lg>Loading Yearbook...</div>
       </div>
     );
   }
@@ -76,27 +76,27 @@ export default function FlipBookPage() {
   const yearNum = year ? parseInt(year, 10) : data?.year || 0;
 
   return (
-    <div className="fixed inset-0 z-50 bg-gradient-to-b from-slate-900 to-slate-950 text-white font-sans">
+    <div className=fixed inset-0 z-50 bg-surface-alt text-text font-sans>
       {/* Header */}
-      <div className="pointer-events-none absolute top-4 left-0 z-10 w-full text-center">
+      <div className=pointer-events-none absolute top-4 left-0 z-10 w-full text-center>
         <Link
-          to="/"
-          className="pointer-events-auto inline-flex items-center gap-2 text-white/50 hover:text-white transition-colors mb-2"
+          to=/
+          className=pointer-events-auto inline-flex items-center gap-2 text-text-muted hover:text-text transition-colors mb-2
         >
-          <ArrowLeft className="w-4 h-4" />
+          <ArrowLeft className=w-4 h-4 />
           Back
         </Link>
-        <h1 className="text-[clamp(1.5rem,4vw,3rem)] font-extrabold tracking-[4px]">
-          {data?.title || `CLASS OF ${year || "..."}`}
+        <h1 className=text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-wide>
+          {data?.title || `CLASS OF ${year || ...}`}
         </h1>
-        <p className="mt-1 text-sm opacity-70">Digital Yearbook Memories</p>
+        <p className=mt-1 text-sm text-text-muted>Digital Yearbook Memories</p>
       </div>
 
       {/* 3D Flipbook — full viewport */}
-      <div className="absolute inset-0">
+      <div className=absolute inset-0>
         <Suspense
           fallback={
-            <div className="flex h-full w-full items-center justify-center text-white/50">
+            <div className=flex h-full w-full items-center justify-center text-text-muted>
               Loading 3D Flipbook...
             </div>
           }
@@ -107,7 +107,7 @@ export default function FlipBookPage() {
 
       {/* Page indicator */}
       {pages.length > 0 && (
-        <div className="absolute bottom-20 left-1/2 -translate-x-1/2 z-20 text-white/40 text-sm">
+        <div className=absolute bottom-20 left-1/2 -translate-x-1/2 z-20 text-text-subtle text-sm>
           Page {currentPage} of {pages.length}
         </div>
       )}

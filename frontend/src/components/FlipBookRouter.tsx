@@ -1,15 +1,15 @@
-import { useParams } from "react-router-dom";
-import { lazy, Suspense } from "react";
-import Navbar from "./Navbar";
-import Footer from "./Footer";
+import { useParams } from react-router-dom;
+import { lazy, Suspense } from react;
+import Navbar from ./Navbar;
+import Footer from ./Footer;
 
-const FlipBookPage = lazy(() => import("../pages/FlipBookPage"));
-const YearbookPage = lazy(() => import("../pages/YearbookPage"));
+const FlipBookPage = lazy(() => import(../pages/FlipBookPage));
+const YearbookPage = lazy(() => import(../pages/YearbookPage));
 
 function LoadingFallback() {
   return (
-    <div className="flex h-64 items-center justify-center">
-      <div className="w-8 h-8 border-2 border-[#e94560] border-t-transparent rounded-full animate-spin" />
+    <div className=flex h-64 items-center justify-center>
+      <div className=w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin />
     </div>
   );
 }
@@ -23,7 +23,7 @@ export default function FlipBookRouter() {
   const { year } = useParams<{ year: string }>();
 
   // Check if the param is a numeric year
-  const isNumericYear = /^\d+$/.test(year || "");
+  const isNumericYear = /^\d+$/.test(year || );
 
   if (isNumericYear) {
     // Full-canvas flipbook — no Navbar/Footer
@@ -36,9 +36,9 @@ export default function FlipBookRouter() {
 
   // Slug-based yearbook — with Navbar/Footer
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className=min-h-screen flex flex-col>
       <Navbar />
-      <main className="flex-1 flex flex-col">
+      <main className=flex-1 flex flex-col>
         <Suspense fallback={<LoadingFallback />}>
           <YearbookPage />
         </Suspense>
