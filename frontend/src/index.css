@@ -3,95 +3,95 @@
 @tailwind utilities;
 
 @layer base {
-  html {
-    scroll-behavior: smooth;
-  }
+ html {
+ scroll-behavior: smooth;
+ }
 
-  body {
-    @apply bg-bg text-text antialiased;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  }
+ body {
+ @apply bg-bg text-text antialiased;
+ font-family: 'Inter', system-ui, -apple-system, sans-serif;
+ }
 }
 
 @layer components {
-  .btn-primary {
-    @apply bg-primary hover:bg-primary-hover text-white font-semibold py-3 px-6 rounded-md transition-colors duration-fast active:scale-95;
-  }
+ .btn-primary {
+ @apply bg-primary hover:bg-primary-hover text-text font-semibold py-3 px-6 rounded-md transition-colors duration-fast active:scale-95;
+ }
 
-  .btn-secondary {
-    @apply bg-surface-alt hover:bg-border text-text font-medium py-3 px-6 rounded-md transition-colors duration-fast border border-border;
-  }
+ .btn-secondary {
+ @apply bg-surface-alt hover:bg-border text-text font-medium py-3 px-6 rounded-md transition-colors duration-fast border border-border;
+ }
 
-  .card {
-    @apply bg-surface border border-border rounded-lg p-6 shadow-sm transition-shadow duration-base hover:shadow-md;
-  }
+ .card {
+ @apply bg-surface border border-border rounded-lg p-6 shadow-sm transition-shadow duration-base hover:shadow-md;
+ }
 
-  .input {
-    @apply w-full bg-surface border border-border rounded-md px-4 py-3 text-text placeholder:text-text-subtle focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary-subtle transition-colors duration-fast;
-  }
+ .input {
+ @apply w-full bg-surface border border-border rounded-md px-4 py-3 text-text placeholder:text-text-subtle focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary-subtle transition-colors duration-fast;
+ }
 
-  .text-accent {
-    @apply text-primary font-semibold;
-  }
+ .text-accent {
+ @apply text-primary font-semibold;
+ }
 }
 
 @layer utilities {
-  .animate-float {
-    animation: float 6s ease-in-out infinite;
-  }
+ .animate-float {
+ animation: float 6s ease-in-out infinite;
+ }
 
-  .animate-glow {
-    animation: glow 2s ease-in-out infinite alternate;
-  }
+ .animate-glow {
+ animation: glow 2s ease-in-out infinite alternate;
+ }
 
-  .page-flip {
-    perspective: 1500px;
-    transform-style: preserve-3d;
-  }
+ .page-flip {
+ perspective: 1500px;
+ transform-style: preserve-3d;
+ }
 
-  .page-flip-enter {
-    animation: pageFlipIn 0.6s ease-out;
-  }
+ .page-flip-enter {
+ animation: pageFlipIn 0.6s ease-out;
+ }
 
-  .page-flip-exit {
-    animation: pageFlipOut 0.4s ease-in;
-  }
+ .page-flip-exit {
+ animation: pageFlipOut 0.4s ease-in;
+ }
 }
 
 @keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-20px); }
+ 0%, 100% { transform: translateY(0px); }
+ 50% { transform: translateY(-20px); }
 }
 
 @keyframes glow {
-  from { box-shadow: 0 0 20px var(--color-primary-subtle); }
-  to { box-shadow: 0 0 40px var(--color-primary-subtle); }
+ from { box-shadow: 0 0 20px var(--color-primary-subtle); }
+ to { box-shadow: 0 0 40px var(--color-primary-subtle); }
 }
 
 @keyframes pageFlipIn {
-  from { transform: rotateY(-90deg); opacity: 0; }
-  to { transform: rotateY(0deg); opacity: 1; }
+ from { transform: rotateY(-90deg); opacity: 0; }
+ to { transform: rotateY(0deg); opacity: 1; }
 }
 
 @keyframes pageFlipOut {
-  from { transform: rotateY(0deg); opacity: 1; }
-  to { transform: rotateY(90deg); opacity: 0; }
+ from { transform: rotateY(0deg); opacity: 1; }
+ to { transform: rotateY(90deg); opacity: 0; }
 }
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
+ width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-surface-alt;
+ @apply bg-surface-alt;
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-border-strong;
-  border-radius: 4px;
+ @apply bg-border-strong;
+ border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-text-subtle;
+ @apply bg-text-subtle;
 }

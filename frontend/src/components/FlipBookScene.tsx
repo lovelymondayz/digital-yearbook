@@ -5,147 +5,147 @@ import { FlipBook } from "quick_flipbook";
 import { useEffect, useMemo, useRef } from "react";
 
 interface FlipBookSceneProps {
-  pages: string[];
-  onPageChange?: (page: number) => void;
+ pages: string[];
+ onPageChange?: (page: number) => void;
 }
 
 function Book({
-  pages,
-  onPageChange,
+ pages,
+ onPageChange,
 }: {
-  pages: string[];
-  onPageChange?: (page: number) => void;
+ pages: string[];
+ onPageChange?: (page: number) => void;
 }) {
-  const clock = useMemo(() => new Clock(), []);
-  const bookRef = useRef<FlipBook | null>(null);
-  const lastPageRef = useRef(-1);
+ const clock = useMemo(() => new Clock(), []);
+ const bookRef = useRef<FlipBook | null>(null);
+ const lastPageRef = useRef(-1);
 
-  const book = useMemo(() => {
-    const instance = new FlipBook({
-      flipDuration: 0.7,
-      yBetweenPages: 0.001,
-      pageSubdivisions: 20,
-    });
-    bookRef.current = instance;
-    return instance;
-  }, []);
+ const book = useMemo(() => {
+ const instance = new FlipBook({
+ flipDuration: 0.7,
+ yBetweenPages: 0.001,
+ pageSubdivisions: 20,
+ });
+ bookRef.current = instance;
+ return instance;
+ }, []);
 
-  useEffect(() => {
-    if (pages.length > 0) {
-      book.setPages(pages);
-    }
-  }, [book, pages]);
+ useEffect(() => {
+ if (pages.length > 0) {
+ book.setPages(pages);
+ }
+ }, [book, pages]);
 
-  useEffect(() => {
-    const updateBookScale = () => {
-      const w = window.innerWidth;
-      if (w < 640) {
-        book.scale.set(3.5, 4.2, 5);
-      } else if (w < 1024) {
-        book.scale.set(3.5, 5.4, 5);
-      } else {
-        book.scale.set(3.5, 6.4, 5);
-      }
-    };
-    updateBookScale();
-    window.addEventListener("resize", updateBookScale);
-    return () => window.removeEventListener("resize", updateBookScale);
-  }, [book]);
+ useEffect(() => {
+ const updateBookScale = () => {
+ const w = window.innerWidth;
+ if (w < 640) {
+ book.scale.set(3.5, 4.2, 5);
+ } else if (w < 1024) {
+ book.scale.set(3.5, 5.4, 5);
+ } else {
+ book.scale.set(3.5, 6.4, 5);
+ }
+ };
+ updateBookScale();
+ window.addEventListener("resize", updateBookScale);
+ return () => window.removeEventListener("resize", updateBookScale);
+ }, [book]);
 
-  // Sync page changes to parent
-  useFrame(() => {
-    const delta = clock.getDelta();
-    book.animate(delta);
+ // Sync page changes to parent
+ useFrame(() => {
+ const delta = clock.getDelta();
+ book.animate(delta);
 
-    if (bookRef.current && onPageChange) {
-      const currentPage = bookRef.current.currentPage;
-      if (currentPage !== lastPageRef.current) {
-        lastPageRef.current = currentPage;
-        onPageChange(currentPage);
-      }
-    }
-  });
+ if (bookRef.current && onPageChange) {
+ const currentPage = bookRef.current.currentPage;
+ if (currentPage !== lastPageRef.current) {
+ lastPageRef.current = currentPage;
+ onPageChange(currentPage);
+ }
+ }
+ });
 
-  useEffect(() => {
-    const nextPage = () => bookRef.current?.nextPage();
-    const prevPage = () => bookRef.current?.previousPage();
+ useEffect(() => {
+ const nextPage = () => bookRef.current?.nextPage();
+ const prevPage = () => bookRef.current?.previousPage();
 
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === "ArrowRight" || e.key === " ") nextPage();
-      if (e.key === "ArrowLeft") prevPage();
-    };
+ const handleKey = (e: KeyboardEvent) => {
+ if (e.key === "ArrowRight" || e.key === " ") nextPage();
+ if (e.key === "ArrowLeft") prevPage();
+ };
 
-    const nextBtn = document.querySelector<HTMLButtonElement>(".next-btn");
-    const prevBtn = document.querySelector<HTMLButtonElement>(".prev-btn");
+ const nextBtn = document.querySelector<HTMLButtonElement>(".next-btn");
+ const prevBtn = document.querySelector<HTMLButtonElement>(".prev-btn");
 
-    nextBtn?.addEventListener("click", nextPage);
-    prevBtn?.addEventListener("click", prevPage);
-    window.addEventListener("keydown", handleKey);
+ nextBtn?.addEventListener("click", nextPage);
+ prevBtn?.addEventListener("click", prevPage);
+ window.addEventListener("keydown", handleKey);
 
-    return () => {
-      nextBtn?.removeEventListener("click", nextPage);
-      prevBtn?.removeEventListener("click", prevPage);
-      window.removeEventListener("keydown", handleKey);
-      book.dispose();
-    };
-  }, [book]);
+ return () => {
+ nextBtn?.removeEventListener("click", nextPage);
+ prevBtn?.removeEventListener("click", prevPage);
+ window.removeEventListener("keydown", handleKey);
+ book.dispose();
+ };
+ }, [book]);
 
-  return <primitive object={book} />;
+ return <primitive object={book} />;
 }
 
 export default function FlipBookScene({
-  pages,
-  onPageChange,
+ pages,
+ onPageChange,
 }: FlipBookSceneProps) {
-  if (!pages || pages.length === 0) {
-    return (
-      <div className="flex h-full items-center justify-center text-text/50">
-        <p>No pages available for this yearbook.</p>
-      </div>
-    );
-  }
+ if (!pages || pages.length === 0) {
+ return (
+ <div className="flex h-full items-center justify-center text-text/50">
+ <p>No pages available for this yearbook.</p>
+ </div>
+ );
+ }
 
-  return (
-    <>
-      <Canvas
-        camera={{
-          position: [0, 10, 2],
-          fov: 50,
-          near: 0.1,
-          far: 1000,
-        }}
-        gl={{
-          antialias: true,
-          alpha: true,
-        }}
-        onCreated={({ scene }) => {
-          scene.background = new Color(0x0f172a);
-        }}
-        style={{ width: "100%", height: "100%" }}
-      >
-        <primitive object={new AmbientLight(0xffffff, 2)} />
-        <primitive
-          object={new DirectionalLight(0xffffff, 3)}
-          position={[5, 5, 5]}
-        />
+ return (
+ <>
+ <Canvas
+ camera={{
+ position: [0, 10, 2],
+ fov: 50,
+ near: 0.1,
+ far: 1000,
+ }}
+ gl={{
+ antialias: true,
+ alpha: true,
+ }}
+ onCreated={({ scene }) => {
+ scene.background = new Color(0x0f172a);
+ }}
+ style={{ width: "100%", height: "100%" }}
+ >
+ <primitive object={new AmbientLight(0xffffff, 2)} />
+ <primitive
+ object={new DirectionalLight(0xffffff, 3)}
+ position={[5, 5, 5]}
+ />
 
-        <OrbitControls
-          enableDamping
-          enablePan={false}
-          minDistance={3}
-          maxDistance={14}
-          maxPolarAngle={Math.PI / 2}
-        />
+ <OrbitControls
+ enableDamping
+ enablePan={false}
+ minDistance={3}
+ maxDistance={14}
+ maxPolarAngle={Math.PI / 2}
+ />
 
-        <Book pages={pages} onPageChange={onPageChange} />
-      </Canvas>
+ <Book pages={pages} onPageChange={onPageChange} />
+ </Canvas>
 
-      <button className="prev-btn fixed bottom-6 left-4 z-20 rounded-full bg-surface-alt px-4 py-2 text-sm  hover:bg-border transition-colors sm:px-5 sm:py-2.5">
-        Previous
-      </button>
-      <button className="next-btn fixed bottom-6 right-4 z-20 rounded-full bg-surface-alt px-4 py-2 text-sm  hover:bg-border transition-colors sm:px-5 sm:py-2.5">
-        Next
-      </button>
-    </>
-  );
+ <button className="prev-btn fixed bottom-6 left-4 z-20 rounded-full bg-surface-alt px-4 py-2 text-sm hover:bg-border transition-colors sm:px-5 sm:py-2.5">
+ Previous
+ </button>
+ <button className="next-btn fixed bottom-6 right-4 z-20 rounded-full bg-surface-alt px-4 py-2 text-sm hover:bg-border transition-colors sm:px-5 sm:py-2.5">
+ Next
+ </button>
+ </>
+ );
 }

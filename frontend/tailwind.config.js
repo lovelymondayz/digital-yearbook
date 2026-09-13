@@ -41,12 +41,6 @@ export default {
         'danger-subtle': '#FEF2F2',
         info: '#3B82F6',
         'info-subtle': '#EFF6FF',
-        // Legacy project-specific colors (deprecated, use semantic tokens)
-        secondary: '#16213e',
-        accent: '#0f3460',
-        highlight: '#e94560',
-        gold: '#f5c518',
-        cream: '#faf3e0',
       },
       borderRadius: {
         sm: '0.375rem',

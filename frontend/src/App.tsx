@@ -18,55 +18,55 @@ const BookmarksPage = lazy(() => import("./pages/BookmarksPage"));
 const NotFoundPage = lazy(() => import("./pages/NotFoundPage"));
 
 export default function App() {
-  return (
-    <Routes>
-      {/* Full-canvas flipbook route — no Navbar/Footer */}
-      <Route path="/yearbook/:year" element={
-        <Suspense fallback={<LoadingFallback />}><FlipBookRouter /></Suspense>
-      } />
+ return (
+ <Routes>
+ {/* Full-canvas flipbook route — no Navbar/Footer */}
+ <Route path="/yearbook/:year" element={
+ <Suspense fallback={<LoadingFallback />}><FlipBookRouter /></Suspense>
+ } />
 
-      <Route element={<Layout />}>
-        <Route path="/" element={<HomePage />} />
+ <Route element={<Layout />}>
+ <Route path="/" element={<HomePage />} />
 
-        <Route path="/student/:id" element={
-          <Suspense fallback={<LoadingFallback />}><StudentPage /></Suspense>
-        } />
-        <Route path="/search" element={
-          <Suspense fallback={<LoadingFallback />}><SearchPage /></Suspense>
-        } />
-        <Route path="/bookmarks" element={
-          <Suspense fallback={<LoadingFallback />}><BookmarksPage /></Suspense>
-        } />
-        <Route path="/dashboard" element={
-          <Suspense fallback={<LoadingFallback />}><DashboardPage /></Suspense>
-        } />
-        <Route path="/admin/login" element={
-          <Suspense fallback={<LoadingFallback />}><LoginPage /></Suspense>
-        } />
-        <Route path="/admin/register" element={
-          <Suspense fallback={<LoadingFallback />}><RegisterPage /></Suspense>
-        } />
-        <Route path="/admin/yearbooks" element={
-          <Suspense fallback={<LoadingFallback />}><AdminYearbooksPage /></Suspense>
-        } />
-        <Route path="/admin/students" element={
-          <Suspense fallback={<LoadingFallback />}><AdminStudentsPage /></Suspense>
-        } />
-        <Route path="/admin/analytics" element={
-          <Suspense fallback={<LoadingFallback />}><AdminAnalyticsPage /></Suspense>
-        } />
-        <Route path="*" element={
-          <Suspense fallback={<LoadingFallback />}><NotFoundPage /></Suspense>
-        } />
-      </Route>
-    </Routes>
-  );
+ <Route path="/student/:id" element={
+ <Suspense fallback={<LoadingFallback />}><StudentPage /></Suspense>
+ } />
+ <Route path="/search" element={
+ <Suspense fallback={<LoadingFallback />}><SearchPage /></Suspense>
+ } />
+ <Route path="/bookmarks" element={
+ <Suspense fallback={<LoadingFallback />}><BookmarksPage /></Suspense>
+ } />
+ <Route path="/dashboard" element={
+ <Suspense fallback={<LoadingFallback />}><DashboardPage /></Suspense>
+ } />
+ <Route path="/admin/login" element={
+ <Suspense fallback={<LoadingFallback />}><LoginPage /></Suspense>
+ } />
+ <Route path="/admin/register" element={
+ <Suspense fallback={<LoadingFallback />}><RegisterPage /></Suspense>
+ } />
+ <Route path="/admin/yearbooks" element={
+ <Suspense fallback={<LoadingFallback />}><AdminYearbooksPage /></Suspense>
+ } />
+ <Route path="/admin/students" element={
+ <Suspense fallback={<LoadingFallback />}><AdminStudentsPage /></Suspense>
+ } />
+ <Route path="/admin/analytics" element={
+ <Suspense fallback={<LoadingFallback />}><AdminAnalyticsPage /></Suspense>
+ } />
+ <Route path="*" element={
+ <Suspense fallback={<LoadingFallback />}><NotFoundPage /></Suspense>
+ } />
+ </Route>
+ </Routes>
+ );
 }
 
 function LoadingFallback() {
-  return (
-    <div className="flex h-64 items-center justify-center">
-      <div className="w-8 h-8 border-2 border-[primary] border-t-transparent rounded-full animate-spin" />
-    </div>
-  );
+ return (
+ <div className="flex h-64 items-center justify-center">
+ <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+ </div>
+ );
 }

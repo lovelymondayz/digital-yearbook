@@ -7,119 +7,119 @@ import StudentSidebar from "../components/StudentSidebar";
 const FlipBookScene = lazy(() => import("../components/FlipBookScene"));
 
 interface FlipbookData {
-  yearbook_id: string;
-  year: number;
-  title: string;
-  pages: {
-    page_number: number;
-    image_url: string;
-    width?: number;
-    height?: number;
-  }[];
+ yearbook_id: string;
+ year: number;
+ title: string;
+ pages: {
+ page_number: number;
+ image_url: string;
+ width?: number;
+ height?: number;
+ }[];
 }
 
 export default function FlipBookPage() {
-  const { year } = useParams<{ year: string }>();
-  const [data, setData] = useState<FlipbookData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [currentPage, setCurrentPage] = useState(1);
+ const { year } = useParams<{ year: string }>();
+ const [data, setData] = useState<FlipbookData | null>(null);
+ const [loading, setLoading] = useState(true);
+ const [currentPage, setCurrentPage] = useState(1);
 
-  useEffect(() => {
-    const load = async () => {
-      try {
-        const API_URL = import.meta.env.VITE_API_URL || "";
+ useEffect(() => {
+ const load = async () => {
+ try {
+ const API_URL = import.meta.env.VITE_API_URL || "";
 
-        if (!year) {
-          const yearsRes = await fetch(`${API_URL}/api/v1/flipbook/years`);
-          if (yearsRes.ok) {
-            const years = await yearsRes.json();
-            if (Array.isArray(years) && years.length > 0) {
-              years.sort(
-                (a: { year: number }, b: { year: number }) => b.year - a.year
-              );
-              const latestYear = years[0].year;
-              const res = await fetch(`${API_URL}/api/v1/flipbook/${latestYear}`);
-              if (res.ok) {
-                setData(await res.json());
-              }
-            }
-          }
-        } else {
-          const res = await fetch(`${API_URL}/api/v1/flipbook/${year}`);
-          if (res.ok) {
-            setData(await res.json());
-          }
-        }
-      } catch {
-        // silent
-      } finally {
-        setLoading(false);
-      }
-    };
-    load();
-  }, [year]);
+ if (!year) {
+ const yearsRes = await fetch(`${API_URL}/api/v1/flipbook/years`);
+ if (yearsRes.ok) {
+ const years = await yearsRes.json();
+ if (Array.isArray(years) && years.length > 0) {
+ years.sort(
+ (a: { year: number }, b: { year: number }) => b.year - a.year
+ );
+ const latestYear = years[0].year;
+ const res = await fetch(`${API_URL}/api/v1/flipbook/${latestYear}`);
+ if (res.ok) {
+ setData(await res.json());
+ }
+ }
+ }
+ } else {
+ const res = await fetch(`${API_URL}/api/v1/flipbook/${year}`);
+ if (res.ok) {
+ setData(await res.json());
+ }
+ }
+ } catch {
+ // silent
+ } finally {
+ setLoading(false);
+ }
+ };
+ load();
+ }, [year]);
 
-  // Handle page change from 3D book
-  const handlePageChange = useCallback((page: number) => {
-    setCurrentPage(page);
-  }, []);
+ // Handle page change from 3D book
+ const handlePageChange = useCallback((page: number) => {
+ setCurrentPage(page);
+ }, []);
 
-  if (loading) {
-    return (
-      <div className="h-screen w-screen flex items-center justify-center bg-gradient-to-b from-slate-900 to-slate-950">
-        <div className="text-text/50 text-lg">Loading Yearbook...</div>
-      </div>
-    );
-  }
+ if (loading) {
+ return (
+ <div className="h-screen w-screen flex items-center justify-center bg-surface">
+ <div className="text-text-muted text-lg">Loading Yearbook...</div>
+ </div>
+ );
+ }
 
-  const pages = data?.pages?.map((p) => p.image_url) || [];
-  const yearNum = year ? parseInt(year, 10) : data?.year || 0;
+ const pages = data?.pages?.map((p) => p.image_url) || [];
+ const yearNum = year ? parseInt(year, 10) : data?.year || 0;
 
-  return (
-    <div className="fixed inset-0 z-50 bg-gradient-to-b from-slate-900 to-slate-950 text-text font-sans">
-      {/* Header */}
-      <div className="pointer-events-none absolute top-4 left-0 z-10 w-full text-center">
-        <Link
-          to="/"
-          className="pointer-events-auto inline-flex items-center gap-2 text-text/50 hover:text-text transition-colors mb-2"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Back
-        </Link>
-        <h1 className="text-[clamp(1.5rem,4vw,3rem)] font-extrabold tracking-[4px]">
-          {data?.title || `CLASS OF ${year || "..."}`}
-        </h1>
-        <p className="mt-1 text-sm opacity-70">Digital Yearbook Memories</p>
-      </div>
+ return (
+ <div className="fixed inset-0 z-50 bg-surface text-text font-sans">
+ {/* Header */}
+ <div className="pointer-events-none absolute top-4 left-0 z-10 w-full text-center">
+ <Link
+ to="/"
+ className="pointer-events-auto inline-flex items-center gap-2 text-text-muted hover:text-text transition-colors mb-2"
+ >
+ <ArrowLeft className="w-4 h-4" />
+ Back
+ </Link>
+ <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-wide text-text">
+ {data?.title || `CLASS OF ${year || "..."}`}
+ </h1>
+ <p className="mt-1 text-sm text-text-muted">Digital Yearbook Memories</p>
+ </div>
 
-      {/* 3D Flipbook — full viewport */}
-      <div className="absolute inset-0">
-        <Suspense
-          fallback={
-            <div className="flex h-full w-full items-center justify-center text-text/50">
-              Loading 3D Flipbook...
-            </div>
-          }
-        >
-          <FlipBookScene pages={pages} onPageChange={handlePageChange} />
-        </Suspense>
-      </div>
+ {/* 3D Flipbook — full viewport */}
+ <div className="absolute inset-0">
+ <Suspense
+ fallback={
+ <div className="flex h-full w-full items-center justify-center text-text-muted">
+ Loading 3D Flipbook...
+ </div>
+ }
+ >
+ <FlipBookScene pages={pages} onPageChange={handlePageChange} />
+ </Suspense>
+ </div>
 
-      {/* Page indicator */}
-      {pages.length > 0 && (
-        <div className="absolute bottom-20 left-1/2 -translate-x-1/2 z-20 text-text/40 text-sm">
-          Page {currentPage} of {pages.length}
-        </div>
-      )}
+ {/* Page indicator */}
+ {pages.length > 0 && (
+ <div className="absolute bottom-20 left-1/2 -translate-x-1/2 z-20 text-text-subtle text-sm">
+ Page {currentPage} of {pages.length}
+ </div>
+ )}
 
-      {/* Right sidebar — student list */}
-      {pages.length > 0 && (
-        <StudentSidebar
-          year={yearNum}
-          currentPage={currentPage}
-          totalPages={pages.length}
-        />
-      )}
-    </div>
-  );
+ {/* Right sidebar — student list */}
+ {pages.length > 0 && (
+ <StudentSidebar
+ year={yearNum}
+ currentPage={currentPage}
+ totalPages={pages.length}
+ />
+ )}
+ </div>
+ );
 }
