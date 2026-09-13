@@ -1,8 +1,8 @@
-import { useState, useEffect, useCallback } from react;
-import { Link, useSearchParams } from react-router-dom;
-import { motion } from framer-motion;
-import { Search, Filter, X, BookOpen } from lucide-react;
-import { searchAPI } from ../lib/api;
+import { useState, useEffect, useCallback } from "react";
+import { Link, useSearchParams } from "react-router-dom";
+import { motion } from "framer-motion";
+import { Search, Filter, X, BookOpen } from "lucide-react";
+import { searchAPI } from "../lib/api";
 
 interface StudentResult {
   id: string;
@@ -15,15 +15,15 @@ interface StudentResult {
 
 export default function SearchPage() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [query, setQuery] = useState(searchParams.get(q) || );
+  const [query, setQuery] = useState(searchParams.get("q") || "");
   const [results, setResults] = useState<StudentResult[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState({
-    year: ,
-    department: ,
-    faculty: ,
+    year: "",
+    department: "",
+    faculty: "",
   });
 
   const doSearch = useCallback(async () => {
@@ -56,43 +56,43 @@ export default function SearchPage() {
   };
 
   return (
-    <div className=min-h-screen py-12 px-4>
-      <div className=max-w-4xl mx-auto>
-        <h1 className=text-3xl font-bold text-text mb-8 text-center text-primary>
+    <div className="min-h-screen py-12 px-4">
+      <div className="max-w-4xl mx-auto">
+        <h1 className="text-3xl font-bold text-text mb-8 text-center text-primary">
           Search Students
         </h1>
 
         {/* Search bar */}
-        <form onSubmit={handleSearch} className=mb-6>
-          <div className=flex gap-3>
-            <div className=flex-1 relative>
-              <Search className=absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-subtle />
+        <form onSubmit={handleSearch} className="mb-6">
+          <div className="flex gap-3">
+            <div className="flex-1 relative">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text/40" />
               <input
-                type=text
+                type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder=Search by name, major, or quote...
-                className=input pl-12
+                placeholder="Search by name, major, or quote..."
+                className="input pl-12"
               />
               {query && (
                 <button
-                  type=button
-                  onClick={() => setQuery()}
-                  className=absolute right-4 top-1/2 -translate-y-1/2 text-text-subtle hover:text-text
+                  type="button"
+                  onClick={() => setQuery("")}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-text/40 hover:text-text"
                 >
-                  <X className=w-4 h-4 />
+                  <X className="w-4 h-4" />
                 </button>
               )}
             </div>
-            <button type=submit className=btn-primary>
+            <button type="submit" className="btn-primary">
               Search
             </button>
             <button
-              type=button
+              type="button"
               onClick={() => setShowFilters(!showFilters)}
-              className={`btn-secondary ${showFilters ? bg-primary-subtle border-primary/30 : }`}
+              className={`btn-secondary ${showFilters ? "bg-primary-subtle border-primary/30" : ""}`}
             >
-              <Filter className=w-4 h-4 />
+              <Filter className="w-4 h-4" />
             </button>
           </div>
 
@@ -100,29 +100,29 @@ export default function SearchPage() {
           {showFilters && (
             <motion.div
               initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: auto }}
-              className=grid grid-cols-1 sm:grid-cols-3 gap-3 mt-4
+              animate={{ opacity: 1, height: "auto" }}
+              className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-4"
             >
               <input
-                type=number
-                placeholder=Graduation year
+                type="number"
+                placeholder="Graduation year"
                 value={filters.year}
                 onChange={(e) => setFilters({ ...filters, year: e.target.value })}
-                className=input
+                className="input"
               />
               <input
-                type=text
-                placeholder=Department
+                type="text"
+                placeholder="Department"
                 value={filters.department}
                 onChange={(e) => setFilters({ ...filters, department: e.target.value })}
-                className=input
+                className="input"
               />
               <input
-                type=text
-                placeholder=Faculty
+                type="text"
+                placeholder="Faculty"
                 value={filters.faculty}
                 onChange={(e) => setFilters({ ...filters, faculty: e.target.value })}
-                className=input
+                className="input"
               />
             </motion.div>
           )}
@@ -130,37 +130,37 @@ export default function SearchPage() {
 
         {/* Results */}
         {loading ? (
-          <div className=flex justify-center py-20>
-            <div className=w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin />
+          <div className="flex justify-center py-20">
+            <div className="w-8 h-8 border-2 border-[primary] border-t-transparent rounded-full animate-spin" />
           </div>
         ) : results.length > 0 ? (
           <>
-            <p className=text-text-muted text-sm mb-4>{total} results found</p>
-            <div className=grid grid-cols-1 sm:grid-cols-2 gap-4>
+            <p className="text-text/50 text-sm mb-4">{total} results found</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {results.map((student) => (
                 <Link
                   key={student.id}
                   to={`/student/${student.id}`}
-                  className=card flex items-center gap-4 group
+                  className="card flex items-center gap-4 group"
                 >
-                  <div className=w-14 h-14 rounded-full bg-primary-subtle flex items-center justify-center flex-shrink-0 overflow-hidden>
+                  <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[primary]/30 to-[primary]/30 flex items-center justify-center flex-shrink-0 overflow-hidden">
                     {student.avatar_image_url ? (
-                      <img src={student.avatar_image_url} alt= className=w-full h-full object-cover />
+                      <img src={student.avatar_image_url} alt="" className="w-full h-full object-cover" />
                     ) : (
-                      <span className=text-lg font-bold text-text-muted>
+                      <span className="text-lg font-bold text-text/50">
                         {student.full_name.charAt(0)}
                       </span>
                     )}
                   </div>
-                  <div className=min-w-0>
-                    <h3 className=font-semibold text-text group-hover:text-primary transition-colors truncate>
+                  <div className="min-w-0">
+                    <h3 className="font-semibold text-text group-hover:text-[primary] transition-colors truncate">
                       {student.full_name}
                     </h3>
                     {student.major && (
-                      <p className=text-text-muted text-sm truncate>{student.major}</p>
+                      <p className="text-text/50 text-sm truncate">{student.major}</p>
                     )}
                     {student.quote && (
-                      <p className=text-text-subtle text-xs truncate italic mt-1>
+                      <p className="text-text/30 text-xs truncate italic mt-1">
                         &ldquo;{student.quote}&rdquo;
                       </p>
                     )}
@@ -170,14 +170,14 @@ export default function SearchPage() {
             </div>
           </>
         ) : query || filters.year || filters.department || filters.faculty ? (
-          <div className=text-center py-20>
-            <Search className=w-16 h-16 text-text-subtle mx-auto mb-4 />
-            <p className=text-text-muted>No students found matching your search.</p>
+          <div className="text-center py-20">
+            <Search className="w-16 h-16 text-text/20 mx-auto mb-4" />
+            <p className="text-text/50">No students found matching your search.</p>
           </div>
         ) : (
-          <div className=text-center py-20>
-            <BookOpen className=w-16 h-16 text-text-subtle mx-auto mb-4 />
-            <p className=text-text-muted>Start typing to search for students.</p>
+          <div className="text-center py-20">
+            <BookOpen className="w-16 h-16 text-text/20 mx-auto mb-4" />
+            <p className="text-text/50">Start typing to search for students.</p>
           </div>
         )}
       </div>

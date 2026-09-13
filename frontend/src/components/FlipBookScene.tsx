@@ -1,8 +1,8 @@
-import { Canvas, useFrame } from @react-three/fiber;
-import { OrbitControls } from @react-three/drei;
-import { Color, AmbientLight, DirectionalLight, Clock } from three;
-import { FlipBook } from quick_flipbook;
-import { useEffect, useMemo, useRef } from react;
+import { Canvas, useFrame } from "@react-three/fiber";
+import { OrbitControls } from "@react-three/drei";
+import { Color, AmbientLight, DirectionalLight, Clock } from "three";
+import { FlipBook } from "quick_flipbook";
+import { useEffect, useMemo, useRef } from "react";
 
 interface FlipBookSceneProps {
   pages: string[];
@@ -48,8 +48,8 @@ function Book({
       }
     };
     updateBookScale();
-    window.addEventListener(resize, updateBookScale);
-    return () => window.removeEventListener(resize, updateBookScale);
+    window.addEventListener("resize", updateBookScale);
+    return () => window.removeEventListener("resize", updateBookScale);
   }, [book]);
 
   // Sync page changes to parent
@@ -71,21 +71,21 @@ function Book({
     const prevPage = () => bookRef.current?.previousPage();
 
     const handleKey = (e: KeyboardEvent) => {
-      if (e.key === ArrowRight || e.key ===  ) nextPage();
-      if (e.key === ArrowLeft) prevPage();
+      if (e.key === "ArrowRight" || e.key === " ") nextPage();
+      if (e.key === "ArrowLeft") prevPage();
     };
 
-    const nextBtn = document.querySelector<HTMLButtonElement>(.next-btn);
-    const prevBtn = document.querySelector<HTMLButtonElement>(.prev-btn);
+    const nextBtn = document.querySelector<HTMLButtonElement>(".next-btn");
+    const prevBtn = document.querySelector<HTMLButtonElement>(".prev-btn");
 
-    nextBtn?.addEventListener(click, nextPage);
-    prevBtn?.addEventListener(click, prevPage);
-    window.addEventListener(keydown, handleKey);
+    nextBtn?.addEventListener("click", nextPage);
+    prevBtn?.addEventListener("click", prevPage);
+    window.addEventListener("keydown", handleKey);
 
     return () => {
-      nextBtn?.removeEventListener(click, nextPage);
-      prevBtn?.removeEventListener(click, prevPage);
-      window.removeEventListener(keydown, handleKey);
+      nextBtn?.removeEventListener("click", nextPage);
+      prevBtn?.removeEventListener("click", prevPage);
+      window.removeEventListener("keydown", handleKey);
       book.dispose();
     };
   }, [book]);
@@ -99,7 +99,7 @@ export default function FlipBookScene({
 }: FlipBookSceneProps) {
   if (!pages || pages.length === 0) {
     return (
-      <div className=flex h-full items-center justify-center text-text-muted>
+      <div className="flex h-full items-center justify-center text-text/50">
         <p>No pages available for this yearbook.</p>
       </div>
     );
@@ -121,7 +121,7 @@ export default function FlipBookScene({
         onCreated={({ scene }) => {
           scene.background = new Color(0x0f172a);
         }}
-        style={{ width: 100%, height: 100% }}
+        style={{ width: "100%", height: "100%" }}
       >
         <primitive object={new AmbientLight(0xffffff, 2)} />
         <primitive
@@ -140,10 +140,10 @@ export default function FlipBookScene({
         <Book pages={pages} onPageChange={onPageChange} />
       </Canvas>
 
-      <button className=prev-btn fixed bottom-6 left-4 z-20 rounded-full bg-surface-alt px-4 py-2 text-sm  hover:bg-border transition-colors sm:px-5 sm:py-2.5>
+      <button className="prev-btn fixed bottom-6 left-4 z-20 rounded-full bg-surface-alt px-4 py-2 text-sm  hover:bg-border transition-colors sm:px-5 sm:py-2.5">
         Previous
       </button>
-      <button className=next-btn fixed bottom-6 right-4 z-20 rounded-full bg-surface-alt px-4 py-2 text-sm  hover:bg-border transition-colors sm:px-5 sm:py-2.5>
+      <button className="next-btn fixed bottom-6 right-4 z-20 rounded-full bg-surface-alt px-4 py-2 text-sm  hover:bg-border transition-colors sm:px-5 sm:py-2.5">
         Next
       </button>
     </>

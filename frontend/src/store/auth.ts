@@ -1,5 +1,5 @@
-import { create } from zustand;
-import { persist } from zustand/middleware;
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
 interface User {
   id: string;
@@ -30,19 +30,19 @@ export const useAuthStore = create<AuthState>()(
       logout: () =>
         set({ user: null, accessToken: null, refreshToken: null, isAuthenticated: false }),
     }),
-    { name: yearbook-auth }
+    { name: "yearbook-auth" }
   )
 );
 
 interface UIState {
-  theme: light | dark;
+  theme: "light" | "dark";
   sidebarOpen: boolean;
   toggleSidebar: () => void;
-  setTheme: (theme: light | dark) => void;
+  setTheme: (theme: "light" | "dark") => void;
 }
 
 export const useUIStore = create<UIState>((set) => ({
-  theme: dark,
+  theme: "dark",
   sidebarOpen: false,
   toggleSidebar: () => set((s) => ({ sidebarOpen: !s.sidebarOpen })),
   setTheme: (theme) => set({ theme }),

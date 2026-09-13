@@ -1,8 +1,8 @@
-import { useState, useEffect } from react;
-import { useParams, Link } from react-router-dom;
-import { motion } from framer-motion;
-import { BookOpen, Users, Calendar, ArrowLeft, ChevronLeft, ChevronRight } from lucide-react;
-import { yearbookAPI } from ../lib/api;
+import { useState, useEffect } from "react";
+import { useParams, Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import { BookOpen, Users, Calendar, ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react";
+import { yearbookAPI } from "../lib/api";
 
 interface YearbookData {
   id: string;
@@ -50,18 +50,18 @@ export default function YearbookPage() {
 
   if (loading) {
     return (
-      <div className=min-h-screen flex items-center justify-center>
-        <div className=w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin />
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-[primary] border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
   if (!yearbook) {
     return (
-      <div className=min-h-screen flex items-center justify-center>
-        <div className=text-center>
-          <h2 className=text-2xl font-bold text-text mb-4>Yearbook not found</h2>
-          <Link to=/ className=btn-primary>Go Home</Link>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-text mb-4">Yearbook not found</h2>
+          <Link to="/" className="btn-primary">Go Home</Link>
         </div>
       </div>
     );
@@ -75,35 +75,35 @@ export default function YearbookPage() {
   );
 
   return (
-    <div className=min-h-screen>
+    <div className="min-h-screen">
       {/* Header */}
-      <div className=relative bg-surface py-12 px-4>
-        <div className=max-w-6xl mx-auto>
-          <Link to=/ className=inline-flex items-center gap-2 text-text-muted hover:text-text mb-6 transition-colors>
-            <ArrowLeft className=w-4 h-4 />
+      <div className="relative bg-gradient-to-b from-surface to-transparent py-12 px-4">
+        <div className="max-w-6xl mx-auto">
+          <Link to="/" className="inline-flex items-center gap-2 text-text/50 hover:text-text mb-6 transition-colors">
+            <ArrowLeft className="w-4 h-4" />
             Back to Home
           </Link>
 
-          <div className=flex flex-col md:flex-row items-start gap-6>
-            <div className=w-32 h-40 bg-primary-subtle rounded-md flex items-center justify-center flex-shrink-0>
+          <div className="flex flex-col md:flex-row items-start gap-6">
+            <div className="w-32 h-40 bg-gradient-to-br from-[primary]/20 to-[primary]/20 rounded-md flex items-center justify-center flex-shrink-0">
               {yearbook.cover_image_url ? (
-                <img src={yearbook.cover_image_url} alt= className=w-full h-full object-cover rounded-md />
+                <img src={yearbook.cover_image_url} alt="" className="w-full h-full object-cover rounded-md" />
               ) : (
-                <BookOpen className=w-12 h-12 text-text-subtle />
+                <BookOpen className="w-12 h-12 text-text/30" />
               )}
             </div>
             <div>
-              <h1 className=text-4xl font-bold text-text mb-2>{yearbook.title}</h1>
-              <div className=flex items-center gap-4 text-text-muted>
-                <span className=flex items-center gap-1>
-                  <Calendar className=w-4 h-4 /> {yearbook.year}
+              <h1 className="text-4xl font-bold text-text mb-2">{yearbook.title}</h1>
+              <div className="flex items-center gap-4 text-text/50">
+                <span className="flex items-center gap-1">
+                  <Calendar className="w-4 h-4" /> {yearbook.year}
                 </span>
-                <span className=flex items-center gap-1>
-                  <Users className=w-4 h-4 /> {students.length} students
+                <span className="flex items-center gap-1">
+                  <Users className="w-4 h-4" /> {students.length} students
                 </span>
               </div>
               {yearbook.description && (
-                <p className=text-text-muted mt-3 max-w-xl>{yearbook.description}</p>
+                <p className="text-text/60 mt-3 max-w-xl">{yearbook.description}</p>
               )}
             </div>
           </div>
@@ -111,27 +111,27 @@ export default function YearbookPage() {
       </div>
 
       {/* Flipbook */}
-      <div className=max-w-6xl mx-auto px-4 py-8>
+      <div className="max-w-6xl mx-auto px-4 py-8">
         {/* Page navigation */}
-        <div className=flex items-center justify-between mb-8>
+        <div className="flex items-center justify-between mb-8">
           <button
             onClick={() => setCurrentPage(Math.max(0, currentPage - 1))}
             disabled={currentPage === 0}
-            className=btn-secondary flex items-center gap-2 disabled:opacity-30
+            className="btn-secondary flex items-center gap-2 disabled:opacity-30"
           >
-            <ChevronLeft className=w-4 h-4 />
+            <ChevronLeft className="w-4 h-4" />
             Previous
           </button>
-          <span className=text-text-muted text-sm>
+          <span className="text-text/50 text-sm">
             Page {currentPage + 1} of {totalPages || 1}
           </span>
           <button
             onClick={() => setCurrentPage(Math.min(totalPages - 1, currentPage + 1))}
             disabled={currentPage >= totalPages - 1}
-            className=btn-secondary flex items-center gap-2 disabled:opacity-30
+            className="btn-secondary flex items-center gap-2 disabled:opacity-30"
           >
             Next
-            <ChevronRight className=w-4 h-4 />
+            <ChevronRight className="w-4 h-4" />
           </button>
         </div>
 
@@ -141,31 +141,31 @@ export default function YearbookPage() {
           initial={{ opacity: 0, rotateY: -10 }}
           animate={{ opacity: 1, rotateY: 0 }}
           transition={{ duration: 0.4 }}
-          className=grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
         >
           {currentStudents.map((student) => (
             <Link
               key={student.id}
               to={`/student/${student.id}`}
-              className=card group text-center
+              className="card group text-center"
             >
-              <div className=w-24 h-24 rounded-full bg-primary-subtle mx-auto mb-4 flex items-center justify-center overflow-hidden>
+              <div className="w-24 h-24 rounded-full bg-gradient-to-br from-[primary]/30 to-[primary]/30 mx-auto mb-4 flex items-center justify-center overflow-hidden">
                 {student.avatar_image_url ? (
-                  <img src={student.avatar_image_url} alt= className=w-full h-full object-cover />
+                  <img src={student.avatar_image_url} alt="" className="w-full h-full object-cover" />
                 ) : (
-                  <span className=text-2xl font-bold text-text-muted>
+                  <span className="text-2xl font-bold text-text/50">
                     {student.full_name.charAt(0)}
                   </span>
                 )}
               </div>
-              <h3 className=text-lg font-semibold text-text group-hover:text-primary transition-colors>
+              <h3 className="text-lg font-semibold text-text group-hover:text-[primary] transition-colors">
                 {student.full_name}
               </h3>
               {student.major && (
-                <p className=text-text-muted text-sm mt-1>{student.major}</p>
+                <p className="text-text/50 text-sm mt-1">{student.major}</p>
               )}
               {student.quote && (
-                <p className=text-text-subtle text-sm mt-2 italic line-clamp-2>
+                <p className="text-text/30 text-sm mt-2 italic line-clamp-2">
                   &ldquo;{student.quote}&rdquo;
                 </p>
               )}
@@ -174,9 +174,9 @@ export default function YearbookPage() {
         </motion.div>
 
         {students.length === 0 && (
-          <div className=text-center py-20>
-            <Users className=w-16 h-16 text-text-subtle mx-auto mb-4 />
-            <p className=text-text-muted>No students in this yearbook yet.</p>
+          <div className="text-center py-20">
+            <Users className="w-16 h-16 text-text/20 mx-auto mb-4" />
+            <p className="text-text/50">No students in this yearbook yet.</p>
           </div>
         )}
       </div>

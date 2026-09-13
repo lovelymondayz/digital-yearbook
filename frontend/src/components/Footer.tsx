@@ -1,20 +1,20 @@
-import { Link } from react-router-dom;
-import { BookOpen, Github, Heart } from lucide-react;
+import { Link } from "react-router-dom";
+import { BookOpen, Github, Heart } from "lucide-react";
 
 export default function Footer() {
   return (
-    <footer className=card border-t border-border mt-20>
-      <div className=max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12>
-        <div className=grid grid-cols-1 md:grid-cols-4 gap-8>
+    <footer className="card border-t border-border mt-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand */}
-          <div className=md:col-span-2>
-            <div className=flex items-center gap-2 mb-4>
-              <div className=w-10 h-10 rounded-md bg-primary flex items-center justify-center>
-                <BookOpen className=w-5 h-5 text-text />
+          <div className="md:col-span-2">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-10 h-10 rounded-md bg-gradient-to-br from-[primary] to-[primary] flex items-center justify-center">
+                <BookOpen className="w-5 h-5 text-text" />
               </div>
-              <span className=text-xl font-bold text-primary>Digital Yearbook</span>
+              <span className="text-xl font-bold text-primary">Digital Yearbook</span>
             </div>
-            <p className=text-text-muted text-sm max-w-md>
+            <p className="text-text/50 text-sm max-w-md">
               A production-grade platform for universities to create, manage, and
               preserve digital yearbooks. Built to last 10+ years.
             </p>
@@ -22,18 +22,18 @@ export default function Footer() {
 
           {/* Links */}
           <div>
-            <h4 className=font-semibold text-text mb-4>Platform</h4>
-            <ul className=space-y-2 text-sm text-text-muted>
-              <li><Link to=/ className=hover:text-text transition-colors>Home</Link></li>
-              <li><Link to=/search className=hover:text-text transition-colors>Search</Link></li>
-              <li><Link to=/login className=hover:text-text transition-colors>Login</Link></li>
+            <h4 className="font-semibold text-text mb-4">Platform</h4>
+            <ul className="space-y-2 text-sm text-text/50">
+              <li><Link to="/" className="hover:text-text transition-colors">Home</Link></li>
+              <li><Link to="/search" className="hover:text-text transition-colors">Search</Link></li>
+              <li><Link to="/login" className="hover:text-text transition-colors">Login</Link></li>
             </ul>
           </div>
 
           {/* Tech */}
           <div>
-            <h4 className=font-semibold text-text mb-4>Technology</h4>
-            <ul className=space-y-2 text-sm text-text-muted>
+            <h4 className="font-semibold text-text mb-4">Technology</h4>
+            <ul className="space-y-2 text-sm text-text/50">
               <li>Go + Chi</li>
               <li>React + TypeScript</li>
               <li>PostgreSQL</li>
@@ -42,21 +42,21 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className=border-t border-border mt-8 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4>
-          <p className=text-sm text-text-subtle>
+        <div className="border-t border-border mt-8 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="text-sm text-text/40">
             © {new Date().getFullYear()} Digital Yearbook. MIT License.
           </p>
-          <div className=flex items-center gap-4>
+          <div className="flex items-center gap-4">
             <a
-              href=https://github.com/lovelymondayz/digital-yearbook
-              target=_blank
-              rel=noopener noreferrer
-              className=text-text-subtle hover:text-text transition-colors
+              href="https://github.com/lovelymondayz/digital-yearbook"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-text/40 hover:text-text transition-colors"
             >
-              <Github className=w-5 h-5 />
+              <Github className="w-5 h-5" />
             </a>
-            <span className=text-sm text-text-subtle flex items-center gap-1>
-              Made with <Heart className=w-3 h-3 text-primary /> by OWL
+            <span className="text-sm text-text/40 flex items-center gap-1">
+              Made with <Heart className="w-3 h-3 text-[primary]" /> by OWL
             </span>
           </div>
         </div>
