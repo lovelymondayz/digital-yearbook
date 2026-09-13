@@ -64,7 +64,7 @@ func main() {
 	flipbookHandler := handler.NewFlipbookHandler(yearbookService, immichService)
 	searchHandler := handler.NewSearchHandler(searchService)
 	healthHandler := handler.NewHealthHandler(cfg)
-	analyticsHandler := handler.NewAnalyticsHandler()
+	analyticsHandler := handler.NewAnalyticsHandler(pool)
 	bookmarkHandler := handler.NewBookmarkHandler()
 	uploadHandler := handler.NewUploadHandler(immichService)
 
@@ -158,8 +158,8 @@ func main() {
 	srv := &http.Server{
 		Addr:         addr,
 		Handler:      r,
-		ReadTimeout:  15 * time.Second,
-		WriteTimeout: 15 * time.Second,
+		ReadTimeout:  60 * time.Second,
+		WriteTimeout: 60 * time.Second,
 		IdleTimeout:  60 * time.Second,
 	}
 

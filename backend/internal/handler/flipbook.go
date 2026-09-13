@@ -87,7 +87,10 @@ func (h *FlipbookHandler) GetFlipbookPages(w http.ResponseWriter, r *http.Reques
 	}
 
 	// Find the Immich album for this year
-	albumName := fmt.Sprintf("Thamrin Graduate %d", year)
+	albumName := r.URL.Query().Get("album")
+	if albumName == "" {
+		albumName = fmt.Sprintf("Graduate %d", year)
+	}
 	album, err := h.immichService.GetAlbumByName(r.Context(), albumName)
 	if err != nil {
 		// Return empty pages if album not found
@@ -152,8 +155,8 @@ func (h *FlipbookHandler) GetStudentsByPage(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	// Get all students for this yearbook (no pagination — we need all for the sidebar)
-	students, _, err := h.yearbookService.GetStudents(r.Context(), yb.ID, 10000, 0)
+	// Get all students for this yearbook (limited pagination)
+	students, _, err := h.yearbookService.GetStudents(r.Context(), yb.ID, 500, 0)
 	if err != nil {
 		response.Error(w, model.NewInternalError())
 		return

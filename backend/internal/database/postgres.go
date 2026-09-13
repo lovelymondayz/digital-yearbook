@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -18,7 +19,7 @@ func NewPool(ctx context.Context, databaseURL string, logger *slog.Logger) (*pgx
 
 	config.MinConns = 2
 	config.MaxConns = 10
-	config.HealthCheckPeriod = 30 * 60 * 1000000000 // 30s in nanoseconds
+	config.HealthCheckPeriod = 30 * time.Minute
 
 	pool, err := pgxpool.NewWithConfig(ctx, config)
 	if err != nil {

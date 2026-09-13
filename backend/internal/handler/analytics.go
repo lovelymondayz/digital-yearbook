@@ -3,24 +3,32 @@ package handler
 import (
 	"net/http"
 
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/lovelymondayz/digital-yearbook/backend/internal/model"
 	"github.com/lovelymondayz/digital-yearbook/backend/pkg/response"
 )
 
-type AnalyticsHandler struct{}
+type AnalyticsHandler struct {
+	db *pgxpool.Pool
+}
 
-func NewAnalyticsHandler() *AnalyticsHandler {
-	return &AnalyticsHandler{}
+func NewAnalyticsHandler(db *pgxpool.Pool) *AnalyticsHandler {
+	return &AnalyticsHandler{db: db}
 }
 
 func (h *AnalyticsHandler) Dashboard(w http.ResponseWriter, r *http.Request) {
-	// TODO: Implement analytics queries
 	dashboard := model.AnalyticsDashboard{
-		TotalUniversities: 0,
-		TotalYearbooks:    0,
-		TotalStudents:     0,
-		TotalPageViews:    0,
-		RecentActivity:    []model.AuditLog{},
+		RecentActivity: []model.AuditLog{},
 	}
+
+	// Total universities
+	_ = h.db.QueryRow(r.Context(), `SELECT COUNT(*) FROM universities WHERE deleted_at IS NULL`).Scan(&dashboard.TotalUniversities)
+	// Total yearbooks
+	_ = h.db.QueryRow(r.Context(), `SELECT COUNT(*) FROM yearbooks WHERE deleted_at IS NULL`).Scan(&dashboard.TotalYearbooks)
+	// Total students
+	_ = h.db.QueryRow(r.Context(), `SELECT COUNT(*) FROM students WHERE deleted_at IS NULL`).Scan(&dashboard.TotalStudents)
+	// Total page views
+	_ = h.db.QueryRow(r.Context(), `SELECT COUNT(*) FROM analytics_events WHERE deleted_at IS NULL`).Scan(&dashboard.TotalPageViews)
+
 	response.JSON(w, http.StatusOK, dashboard)
 }
