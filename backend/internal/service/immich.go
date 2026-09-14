@@ -217,31 +217,41 @@ func (s *ImmichService) GetAlbumByName(ctx context.Context, name string) (*Immic
 	return nil, fmt.Errorf("album not found: %s", name)
 }
 
-// GetAlbumAssets returns all assets in an album.
+// GetAlbumAssets returns all assets in an album using the v3-compatible search endpoint.
 func (s *ImmichService) GetAlbumAssets(ctx context.Context, albumID string) ([]ImmichAsset, error) {
-	url := fmt.Sprintf("%s/api/albums/%s", s.baseURL, albumID)
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+	url := fmt.Sprintf("%s/api/search/metadata", s.baseURL)
+	body := map[string]interface{}{
+		"albumIds": []string{albumID},
+	}
+	bodyBytes, err := json.Marshal(body)
+	if err != nil {
+		return nil, fmt.Errorf("marshal request: %w", err)
+	}
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewReader(bodyBytes))
 	if err != nil {
 		return nil, fmt.Errorf("create request: %w", err)
 	}
 	req.Header.Set("x-api-key", s.apiKey)
+	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := s.httpClient.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("get album failed: %w", err)
+		return nil, fmt.Errorf("get album assets failed: %w", err)
 	}
 	defer resp.Body.Close()
 
-	body, _ := io.ReadAll(resp.Body)
+	respBody, _ := io.ReadAll(resp.Body)
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("get album error (status %d): %s", resp.StatusCode, string(body))
+		return nil, fmt.Errorf("get album assets error (status %d): %s", resp.StatusCode, string(respBody))
 	}
 
 	var result struct {
-		Assets []ImmichAsset `json:"assets"`
+		Assets struct {
+			Items []ImmichAsset `json:"items"`
+		} `json:"assets"`
 	}
-	if err := json.Unmarshal(body, &result); err != nil {
+	if err := json.Unmarshal(respBody, &result); err != nil {
 		return nil, fmt.Errorf("parse album assets: %w", err)
 	}
-	return result.Assets, nil
+	return result.Assets.Items, nil
 }
