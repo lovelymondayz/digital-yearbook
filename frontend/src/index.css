@@ -78,20 +78,38 @@
  to { transform: rotateY(90deg); opacity: 0; }
 }
 
+/* Fullscreen mode */
+.fullscreen-mode {
+  cursor: default;
+}
+
+.fullscreen-mode.idle {
+  cursor: none;
+}
+
+.fullscreen-mode.idle * {
+  cursor: none !important;
+}
+
+/* Smooth control fade for fullscreen UX */
+.control-fade {
+  transition: opacity 0.5s ease, transform 0.3s ease;
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
- width: 8px;
+  width: 8px;
 }
 
 ::-webkit-scrollbar-track {
- @apply bg-surface-alt;
+  @apply bg-surface-alt;
 }
 
 ::-webkit-scrollbar-thumb {
- @apply bg-border-strong;
- border-radius: 4px;
+  @apply bg-border-strong;
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
- @apply bg-text-subtle;
+  @apply bg-text-subtle;
 }

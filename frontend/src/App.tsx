@@ -4,7 +4,7 @@ import Layout from "./components/Layout";
 import HomePage from "./pages/HomePage";
 import FlipBookRouter from "./components/FlipBookRouter";
 
-// Lazy-loaded pages — not needed on initial load
+// Lazy-loaded pages — code-split for faster initial load
 const YearbookPage = lazy(() => import("./pages/YearbookPage"));
 const StudentPage = lazy(() => import("./pages/StudentPage"));
 const SearchPage = lazy(() => import("./pages/SearchPage"));
@@ -17,8 +17,9 @@ const AdminAnalyticsPage = lazy(() => import("./pages/admin/AdminAnalyticsPage")
 const BookmarksPage = lazy(() => import("./pages/BookmarksPage"));
 const NotFoundPage = lazy(() => import("./pages/NotFoundPage"));
 
-export default function App() {
- return (
+function App() {
+  // v1.1 — flipbook UI overhaul: fullscreen, no sidebar, page-turn sound
+  return (
  <Routes>
  {/* Full-canvas flipbook route — no Navbar/Footer */}
  <Route path="/yearbook/:year" element={
@@ -70,3 +71,5 @@ function LoadingFallback() {
  </div>
  );
 }
+
+export default App;
