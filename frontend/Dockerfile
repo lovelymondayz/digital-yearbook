@@ -12,10 +12,8 @@ RUN npm install --legacy-peer-deps
 # Copy source code
 COPY . .
 
-# Build
-ARG VITE_API_URL=
-ENV VITE_API_URL=${VITE_API_URL}
-RUN npm run build
+# Build with cache bust
+RUN rm -rf node_modules/.vite && npm run build
 
 # Runtime stage
 FROM nginx:alpine
