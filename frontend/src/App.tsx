@@ -18,7 +18,7 @@ const BookmarksPage = lazy(() => import("./pages/BookmarksPage"));
 const NotFoundPage = lazy(() => import("./pages/NotFoundPage"));
 
 function App() {
-  // v1.1 — flipbook UI overhaul: fullscreen, no sidebar, page-turn sound
+  // v1.2 — fullscreen flipbook, remove students, arjism footer, page sound
   return (
  <Routes>
  {/* Full-canvas flipbook route — no Navbar/Footer */}

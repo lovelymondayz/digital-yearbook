@@ -33,6 +33,9 @@ COPY migrations /app/migrations
 # Set migrations directory
 ENV MIGRATIONS_DIR=/app/migrations
 
+# Fix ownership for non-root user
+RUN chown -R 1000:1000 /app/migrations /app/server
+
 # Expose port
 EXPOSE 8080
 
