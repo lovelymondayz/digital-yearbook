@@ -28,9 +28,6 @@ services:
 
   backend:
     container_name: yearbook-backend
-    # build: was missing — the service referenced a pre-built image only, so once
-    # digital-yearbook-backend:latest was pruned the stack could not come back up
-    # without a manual `docker build`. Building from source makes it reproducible.
     build: ./backend
     image: digital-yearbook-backend:latest
     environment:
@@ -52,15 +49,11 @@ services:
     restart: unless-stopped
     networks:
       - backend
-      - immich_default
 
   frontend:
     container_name: yearbook-frontend
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-      args:
-        VITE_API_URL: ${API_URL:-}
+    build: ./frontend
+    image: digital-yearbook-frontend:latest
     ports:
       - "${FRONTEND_PORT:-3001}:80"
     depends_on:
