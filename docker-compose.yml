@@ -69,5 +69,3 @@ volumes:
 networks:
   backend:
     driver: bridge
-  immich_default:
-    external: true
