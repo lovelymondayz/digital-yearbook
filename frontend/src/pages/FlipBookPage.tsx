@@ -173,12 +173,10 @@ export default function FlipBookPage() {
 
   return (
     <div className={`fixed inset-0 z-50 bg-surface text-text font-sans ${isFullscreen ? "fullscreen-mode" : ""}`}>
-      {/* Header — fades out in fullscreen idle */}
-      <div
-        className={`pointer-events-none absolute top-4 left-0 z-10 w-full text-center transition-opacity duration-500 ${
-          isFullscreen && !controlsVisible ? "opacity-0" : "opacity-100"
-        }`}
-      >
+      {/* Header — the title stays visible at all times. It previously faded
+          out with the controls after 3s idle in fullscreen, which made the
+          yearbook title disappear on this route. */}
+      <div className="pointer-events-none absolute top-4 left-0 z-10 w-full text-center">
         <Link
           to="/"
           className="pointer-events-auto inline-flex items-center gap-2 text-text-muted hover:text-text transition-colors mb-2"
