@@ -135,10 +135,14 @@ export default function FlipBookScene({
 
         <OrbitControls
           enableDamping
+          enableRotate={false}
           enablePan={false}
-          minDistance={3}
-          maxDistance={14}
-          maxPolarAngle={Math.PI / 2}
+          enableZoom
+          minDistance={4}
+          maxDistance={16}
+          minPolarAngle={Math.PI / 3}
+          maxPolarAngle={Math.PI / 3}
+          makeDefault
         />
 
         <Book pages={pages} onPageChange={onPageChange} />
