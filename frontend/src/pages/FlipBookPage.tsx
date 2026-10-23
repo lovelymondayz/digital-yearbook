@@ -27,6 +27,17 @@ export default function FlipBookPage() {
   const [controlsVisible, setControlsVisible] = useState(true);
   const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // Desktop (>= 768px) shows a 2-page spread; mobile shows a single page.
+  const [isDesktop, setIsDesktop] = useState(
+    () => typeof window !== "undefined" && window.innerWidth >= 768
+  );
+
+  useEffect(() => {
+    const onResize = () => setIsDesktop(window.innerWidth >= 768);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
   // Fetch flipbook data
   useEffect(() => {
     const load = async () => {
@@ -174,7 +185,7 @@ export default function FlipBookPage() {
             </div>
           }
         >
-          <FlipBookScene pages={pages} onPageChange={handlePageChange} fullscreen={isFullscreen} controlsVisible={controlsVisible} />
+          <FlipBookScene pages={pages} onPageChange={handlePageChange} fullscreen={isFullscreen} controlsVisible={controlsVisible} spread={isDesktop} />
         </Suspense>
       </div>
 

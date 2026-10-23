@@ -9,14 +9,21 @@ interface FlipBookSceneProps {
   onPageChange?: (page: number) => void;
   fullscreen?: boolean;
   controlsVisible?: boolean;
+  /**
+   * Desktop layout: the book is always open, so a 2-page spread is visible
+   * at every position instead of collapsing to a lone cover at page 0.
+   */
+  spread?: boolean;
 }
 
 function Book({
   pages,
   onPageChange,
+  spread = false,
 }: {
   pages: string[];
   onPageChange?: (page: number) => void;
+  spread?: boolean;
 }) {
   const clock = useMemo(() => new Clock(), []);
   const bookRef = useRef<FlipBook | null>(null);
@@ -35,8 +42,13 @@ function Book({
   useEffect(() => {
     if (pages.length > 0) {
       book.setPages(pages);
+      if (spread) {
+        // Open the book to progress 1 so both pages of the spread are visible
+        // from the first render. At progress 0 the library shows a lone cover.
+        book.currentPage = 2;
+      }
     }
-  }, [book, pages]);
+  }, [book, pages, spread]);
 
   useEffect(() => {
     const updateBookScale = () => {
@@ -70,7 +82,14 @@ function Book({
 
   useEffect(() => {
     const nextPage = () => bookRef.current?.nextPage();
-    const prevPage = () => bookRef.current?.previousPage();
+    const prevPage = () => {
+      const book = bookRef.current;
+      if (!book) return;
+      // In spread mode the book stays open — never collapse back to a
+      // single-page cover.
+      if (spread && book.currentPage <= 2) return;
+      book.previousPage();
+    };
 
     const handleKey = (e: KeyboardEvent) => {
       if (e.key === "ArrowRight" || e.key === " ") nextPage();
@@ -90,7 +109,7 @@ function Book({
       window.removeEventListener("keydown", handleKey);
       book.dispose();
     };
-  }, [book]);
+  }, [book, spread]);
 
   return <primitive object={book} />;
 }
@@ -100,6 +119,7 @@ export default function FlipBookScene({
   onPageChange,
   fullscreen = false,
   controlsVisible = true,
+  spread = false,
 }: FlipBookSceneProps) {
   if (!pages || pages.length === 0) {
     return (
@@ -145,7 +165,7 @@ export default function FlipBookScene({
           makeDefault
         />
 
-        <Book pages={pages} onPageChange={onPageChange} />
+        <Book pages={pages} onPageChange={onPageChange} spread={spread} />
       </Canvas>
 
       <button
