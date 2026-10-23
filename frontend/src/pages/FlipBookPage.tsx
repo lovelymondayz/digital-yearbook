@@ -1,12 +1,13 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import { lazy, Suspense } from "react";
-import { ArrowLeft, Maximize, Minimize } from "lucide-react";
+import { ArrowLeft, Maximize, Minimize, ZoomIn } from "lucide-react";
 import { playPageFlip } from "../lib/sound";
 import type { FlipBookController } from "../components/FlipBookScene";
 
 const FlipBookScene = lazy(() => import("../components/FlipBookScene"));
 const FlipBookMobile = lazy(() => import("../components/FlipBookMobile"));
+const PageZoomOverlay = lazy(() => import("../components/PageZoomOverlay"));
 
 interface FlipbookData {
   yearbook_id: string;
@@ -28,6 +29,7 @@ export default function FlipBookPage() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [controlsVisible, setControlsVisible] = useState(true);
   const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [zoomPage, setZoomPage] = useState<number | null>(null);
 
   // Desktop (>= 768px) shows a 2-page spread; mobile shows a single page.
   const [isDesktop, setIsDesktop] = useState(
@@ -49,12 +51,14 @@ export default function FlipBookPage() {
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
+      // While the zoom overlay is open it owns the keyboard.
+      if (zoomPage !== null) return;
       if (e.key === "ArrowRight" || e.key === " ") goNext();
       if (e.key === "ArrowLeft") goPrev();
     };
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
-  }, [goNext, goPrev]);
+  }, [goNext, goPrev, zoomPage]);
 
   // Memoized so the URL list keeps a stable identity. FlipBookScene's effect
   // depends on this array; without memoizing, every render produced a new
@@ -203,8 +207,13 @@ export default function FlipBookPage() {
         )}
       </button>
 
-      {/* Yearbook view — 3D spread on desktop, single page on mobile */}
-      <div className="absolute inset-0">
+      {/* Yearbook view — 3D spread on desktop, single page on mobile.
+          Clicking the page opens the zoom overlay. */}
+      <div
+        className="absolute inset-0"
+        onClick={() => currentPage >= 1 && setZoomPage(currentPage)}
+        style={{ cursor: "zoom-in" }}
+      >
         <Suspense
           fallback={
             <div className="flex h-full w-full items-center justify-center text-text-muted">
@@ -229,6 +238,20 @@ export default function FlipBookPage() {
           )}
         </Suspense>
       </div>
+
+      {/* Zoom button — discoverable alternative to clicking the page */}
+      {pages.length > 0 && currentPage >= 1 && (
+        <button
+          onClick={() => setZoomPage(currentPage)}
+          className={`fixed top-4 right-16 z-20 p-2 rounded-lg bg-surface-alt/80 hover:bg-surface-alt border border-border transition-all duration-300 ${
+            isFullscreen && !controlsVisible ? "opacity-0 pointer-events-none" : "opacity-100"
+          }`}
+          title="Zoom into this page"
+          aria-label="Zoom into this page"
+        >
+          <ZoomIn className="w-5 h-5 text-text-muted" />
+        </button>
+      )}
 
       {/* Page indicator */}
       {pages.length > 0 && (
@@ -262,6 +285,18 @@ export default function FlipBookPage() {
       >
         Next
       </button>
+
+      {/* Tap-to-zoom overlay */}
+      {zoomPage !== null && (
+        <Suspense fallback={null}>
+          <PageZoomOverlay
+            src={pages[Math.min(Math.max(zoomPage - 1, 0), pages.length - 1)] ?? null}
+            page={zoomPage}
+            total={pages.length}
+            onClose={() => setZoomPage(null)}
+          />
+        </Suspense>
+      )}
     </div>
   );
 }
