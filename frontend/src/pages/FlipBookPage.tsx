@@ -30,6 +30,9 @@ export default function FlipBookPage() {
   const [controlsVisible, setControlsVisible] = useState(true);
   const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [zoomPage, setZoomPage] = useState<number | null>(null);
+  // Pointer-down position, used to tell a tap apart from a drag before
+  // opening the zoom overlay.
+  const pointerDownRef = useRef<{ x: number; y: number } | null>(null);
 
   // Desktop (>= 768px) shows a 2-page spread; mobile shows a single page.
   const [isDesktop, setIsDesktop] = useState(
@@ -206,10 +209,19 @@ export default function FlipBookPage() {
       </button>
 
       {/* Yearbook view — 3D spread on desktop, single page on mobile.
-          Clicking the page opens the zoom overlay. */}
+          Tapping the page opens the zoom overlay. A drag is ignored so
+          touch/scroll gestures don't trigger it. */}
       <div
         className="absolute inset-0"
-        onClick={() => currentPage >= 1 && setZoomPage(currentPage)}
+        onPointerDown={(e) => {
+          pointerDownRef.current = { x: e.clientX, y: e.clientY };
+        }}
+        onClick={(e) => {
+          const down = pointerDownRef.current;
+          pointerDownRef.current = null;
+          if (down && Math.hypot(e.clientX - down.x, e.clientY - down.y) > 6) return;
+          if (currentPage >= 1) setZoomPage(currentPage);
+        }}
         style={{ cursor: "zoom-in" }}
       >
         <Suspense
