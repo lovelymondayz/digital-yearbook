@@ -28,6 +28,9 @@ function Book({
   const clock = useMemo(() => new Clock(), []);
   const bookRef = useRef<FlipBook | null>(null);
   const lastPageRef = useRef(-1);
+  // Guards the initial "open the book" jump so it runs once instead of on
+  // every effect re-run, which would snap the book back to page 2.
+  const openedRef = useRef(false);
 
   const book = useMemo(() => {
     const instance = new FlipBook({
@@ -42,9 +45,10 @@ function Book({
   useEffect(() => {
     if (pages.length > 0) {
       book.setPages(pages);
-      if (spread) {
+      if (spread && !openedRef.current) {
         // Open the book to progress 1 so both pages of the spread are visible
         // from the first render. At progress 0 the library shows a lone cover.
+        openedRef.current = true;
         book.currentPage = 2;
       }
     }

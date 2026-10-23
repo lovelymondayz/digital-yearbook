@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import { lazy, Suspense } from "react";
 import { ArrowLeft, Maximize, Minimize } from "lucide-react";
@@ -137,7 +137,14 @@ export default function FlipBookPage() {
     );
   }
 
-  const pages = data?.pages?.map((p) => p.image_url) || [];
+  // Memoized so the URL list keeps a stable identity. FlipBookScene's effect
+  // depends on this array; without memoizing, every render produced a new
+  // array and the book's sheets were rebuilt (and the open-spread position
+  // re-applied) on each render.
+  const pages = useMemo(
+    () => data?.pages?.map((p) => p.image_url) || [],
+    [data]
+  );
   const yearNum = year ? parseInt(year, 10) : data?.year || 0;
 
   return (
