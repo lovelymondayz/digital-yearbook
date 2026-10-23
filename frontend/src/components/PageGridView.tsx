@@ -69,7 +69,7 @@ export default function PageGridView({
                   aria-label={`Go to page ${pageNumber}`}
                   aria-current={isCurrent ? "page" : undefined}
                 >
-                  <span className="relative block aspect-[5 / 7] w-full bg-surface-alt">
+                  <span className="relative block aspect-[5/7] w-full bg-surface-alt">
                     <img
                       src={thumbSrc(url)}
                       alt={`Page ${pageNumber}`}
