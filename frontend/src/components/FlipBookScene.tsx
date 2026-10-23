@@ -44,7 +44,10 @@ function Book({
 
   useEffect(() => {
     if (pages.length > 0) {
-      book.setPages(pages);
+      // quick_flipbook pads odd-length arrays by pushing "" onto the array it
+      // is given. Pass a copy so the caller's page list is never mutated —
+      // otherwise the page indicator counts the padding as a real page.
+      book.setPages([...pages]);
       if (spread && !openedRef.current) {
         // Open the book to progress 1 so both pages of the spread are visible
         // from the first render. At progress 0 the library shows a lone cover.
