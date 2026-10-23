@@ -40,6 +40,10 @@ export default function FlipBookMobile({
     controllerRef.current = {
       next: () => onPageChange(Math.min(shownPage + 1, pages.length)),
       prev: () => onPageChange(Math.max(shownPage - 1, 1)),
+      jumpTo: (page) => {
+        const target = Math.min(Math.max(page, 1), pages.length);
+        if (target !== shownPage) onPageChange(target);
+      },
     };
     return () => {
       if (controllerRef) controllerRef.current = null;

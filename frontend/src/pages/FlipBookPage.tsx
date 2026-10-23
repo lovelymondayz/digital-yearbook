@@ -1,13 +1,14 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import { lazy, Suspense } from "react";
-import { ArrowLeft, Maximize, Minimize, ZoomIn } from "lucide-react";
+import { ArrowLeft, Maximize, Minimize, ZoomIn, LayoutGrid } from "lucide-react";
 import { playPageFlip } from "../lib/sound";
 import type { FlipBookController } from "../components/FlipBookScene";
 
 const FlipBookScene = lazy(() => import("../components/FlipBookScene"));
 const FlipBookMobile = lazy(() => import("../components/FlipBookMobile"));
 const PageZoomOverlay = lazy(() => import("../components/PageZoomOverlay"));
+const PageGridView = lazy(() => import("../components/PageGridView"));
 
 interface FlipbookData {
   yearbook_id: string;
@@ -30,6 +31,7 @@ export default function FlipBookPage() {
   const [controlsVisible, setControlsVisible] = useState(true);
   const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [zoomPage, setZoomPage] = useState<number | null>(null);
+  const [gridOpen, setGridOpen] = useState(false);
   // Pointer-down position, used to tell a tap apart from a drag before
   // opening the zoom overlay.
   const pointerDownRef = useRef<{ x: number; y: number } | null>(null);
@@ -45,6 +47,14 @@ export default function FlipBookPage() {
 
   const goNext = useCallback(() => controllerRef.current?.next(), []);
   const goPrev = useCallback(() => controllerRef.current?.prev(), []);
+  // Jump to a 1-based page chosen from the grid overview.
+  const jumpToPage = useCallback(
+    (page: number) => {
+      controllerRef.current?.jumpTo(page);
+      setGridOpen(false);
+    },
+    []
+  );
 
   useEffect(() => {
     const onResize = () => setIsDesktop(window.innerWidth >= 768);
@@ -263,6 +273,20 @@ export default function FlipBookPage() {
         </button>
       )}
 
+      {/* Grid overview — see every page at once */}
+      {pages.length > 0 && (
+        <button
+          onClick={() => setGridOpen(true)}
+          className={`fixed top-4 right-28 z-20 p-2 rounded-lg bg-surface-alt/80 hover:bg-surface-alt border border-border transition-all duration-300 ${
+            isFullscreen && !controlsVisible ? "opacity-0 pointer-events-none" : "opacity-100"
+          }`}
+          title="View all pages"
+          aria-label="View all pages"
+        >
+          <LayoutGrid className="w-5 h-5 text-text-muted" />
+        </button>
+      )}
+
       {/* Page indicator */}
       {pages.length > 0 && (
         <div
@@ -304,6 +328,19 @@ export default function FlipBookPage() {
             page={zoomPage}
             total={pages.length}
             onClose={() => setZoomPage(null)}
+          />
+        </Suspense>
+      )}
+
+      {/* All-pages grid overview */}
+      {gridOpen && (
+        <Suspense fallback={null}>
+          <PageGridView
+            pages={pages}
+            currentPage={currentPage}
+            title={data?.title || `Class of ${year || "..."}`}
+            onSelect={jumpToPage}
+            onClose={() => setGridOpen(false)}
           />
         </Suspense>
       )}

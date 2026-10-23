@@ -8,6 +8,8 @@ import { useEffect, useMemo, useRef } from "react";
 export interface FlipBookController {
   next: () => void;
   prev: () => void;
+  /** Jump to a 1-based page, honouring the view's own stepping rules. */
+  jumpTo: (page: number) => void;
 }
 
 interface FlipBookSceneProps {
@@ -106,6 +108,17 @@ function Book({
           // single-page cover.
           if (spread && instance.currentPage <= 2) return;
           instance.previousPage();
+        },
+        jumpTo: (page: number) => {
+          const instance = bookRef.current;
+          if (!instance) return;
+          // A sheet holds two pages, so jump to the spread containing the
+          // requested page (even page numbers only).
+          const target = page % 2 === 0 ? page : page - 1;
+          // Spread mode never collapses to the lone cover at page 0.
+          const clamped = spread ? Math.max(2, target) : target;
+          if (clamped === instance.currentPage) return;
+          instance.currentPage = clamped;
         },
       };
     }
