@@ -99,9 +99,22 @@ func (s *ImmichService) GetAssetURL(assetID string) string {
 	return fmt.Sprintf("%s/api/assets/%s/original", s.baseURL, assetID)
 }
 
-// GetAssetThumbnailURL constructs the thumbnail URL for an Immich asset.
-func (s *ImmichService) GetAssetThumbnailURL(assetID string) string {
-	return fmt.Sprintf("%s/api/assets/%s/thumbnail?size=preview", s.baseURL, assetID)
+// GetAssetURLForSize returns an asset URL for a given size variant:
+//   - "thumbnail" — 250px WebP (~22KB), used for grid overviews
+//   - "preview"   — 1050px JPEG (~365KB)
+//   - anything else (including "original") — the full-resolution file
+//
+// Originals run ~2MB each, so listing every page of a yearbook at full size
+// costs ~64MB. Unknown sizes fall back to the original rather than failing.
+func (s *ImmichService) GetAssetURLForSize(assetID, size string) string {
+	switch size {
+	case "thumbnail":
+		return fmt.Sprintf("%s/api/assets/%s/thumbnail?size=thumbnail", s.baseURL, assetID)
+	case "preview":
+		return fmt.Sprintf("%s/api/assets/%s/thumbnail?size=preview", s.baseURL, assetID)
+	default:
+		return s.GetAssetURL(assetID)
+	}
 }
 
 // HTTPClient returns the HTTP client for making requests to Immich.

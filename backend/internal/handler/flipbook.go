@@ -196,8 +196,10 @@ func (h *FlipbookHandler) ProxyAsset(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Fetch the image from Immich
-	immichURL := h.immichService.GetAssetURL(assetID)
+	// Fetch image from Immich. `?size=` selects a variant so the page grid can
+	// list every page using the 250px thumbnail instead of the 2MB original.
+	size := r.URL.Query().Get("size")
+	immichURL := h.immichService.GetAssetURLForSize(assetID, size)
 	req, err := http.NewRequestWithContext(r.Context(), http.MethodGet, immichURL, nil)
 	if err != nil {
 		response.Error(w, model.NewInternalError())
