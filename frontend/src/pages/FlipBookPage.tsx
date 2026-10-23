@@ -38,6 +38,16 @@ export default function FlipBookPage() {
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
+  // Memoized so the URL list keeps a stable identity. FlipBookScene's effect
+  // depends on this array; without memoizing, every render produced a new
+  // array and the book's sheets were rebuilt (and the open-spread position
+  // re-applied) on each render. Must stay above the early returns so hook
+  // order never changes between renders.
+  const pages = useMemo(
+    () => data?.pages?.map((p) => p.image_url) || [],
+    [data]
+  );
+
   // Fetch flipbook data
   useEffect(() => {
     const load = async () => {
@@ -137,14 +147,6 @@ export default function FlipBookPage() {
     );
   }
 
-  // Memoized so the URL list keeps a stable identity. FlipBookScene's effect
-  // depends on this array; without memoizing, every render produced a new
-  // array and the book's sheets were rebuilt (and the open-spread position
-  // re-applied) on each render.
-  const pages = useMemo(
-    () => data?.pages?.map((p) => p.image_url) || [],
-    [data]
-  );
   const yearNum = year ? parseInt(year, 10) : data?.year || 0;
 
   return (
