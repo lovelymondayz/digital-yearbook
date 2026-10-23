@@ -4,26 +4,33 @@ import { Color, AmbientLight, DirectionalLight, Clock } from "three";
 import { FlipBook } from "quick_flipbook";
 import { useEffect, useMemo, useRef } from "react";
 
+/** Imperative handle the page uses for its shared Next/Previous buttons. */
+export interface FlipBookController {
+  next: () => void;
+  prev: () => void;
+}
+
 interface FlipBookSceneProps {
   pages: string[];
   onPageChange?: (page: number) => void;
-  fullscreen?: boolean;
-  controlsVisible?: boolean;
   /**
    * Desktop layout: the book is always open, so a 2-page spread is visible
    * at every position instead of collapsing to a lone cover at page 0.
    */
   spread?: boolean;
+  controllerRef?: React.MutableRefObject<FlipBookController | null>;
 }
 
 function Book({
   pages,
   onPageChange,
   spread = false,
+  controllerRef,
 }: {
   pages: string[];
   onPageChange?: (page: number) => void;
   spread?: boolean;
+  controllerRef?: React.MutableRefObject<FlipBookController | null>;
 }) {
   const clock = useMemo(() => new Clock(), []);
   const bookRef = useRef<FlipBook | null>(null);
@@ -87,36 +94,26 @@ function Book({
     }
   });
 
+  // Expose next/prev to the shared controls and release the book on unmount.
   useEffect(() => {
-    const nextPage = () => bookRef.current?.nextPage();
-    const prevPage = () => {
-      const book = bookRef.current;
-      if (!book) return;
-      // In spread mode the book stays open — never collapse back to a
-      // single-page cover.
-      if (spread && book.currentPage <= 2) return;
-      book.previousPage();
-    };
-
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === "ArrowRight" || e.key === " ") nextPage();
-      if (e.key === "ArrowLeft") prevPage();
-    };
-
-    const nextBtn = document.querySelector<HTMLButtonElement>(".next-btn");
-    const prevBtn = document.querySelector<HTMLButtonElement>(".prev-btn");
-
-    nextBtn?.addEventListener("click", nextPage);
-    prevBtn?.addEventListener("click", prevPage);
-    window.addEventListener("keydown", handleKey);
-
+    if (controllerRef) {
+      controllerRef.current = {
+        next: () => bookRef.current?.nextPage(),
+        prev: () => {
+          const instance = bookRef.current;
+          if (!instance) return;
+          // In spread mode the book stays open — never collapse back to a
+          // single-page cover.
+          if (spread && instance.currentPage <= 2) return;
+          instance.previousPage();
+        },
+      };
+    }
     return () => {
-      nextBtn?.removeEventListener("click", nextPage);
-      prevBtn?.removeEventListener("click", prevPage);
-      window.removeEventListener("keydown", handleKey);
+      if (controllerRef) controllerRef.current = null;
       book.dispose();
     };
-  }, [book, spread]);
+  }, [book, spread, controllerRef]);
 
   return <primitive object={book} />;
 }
@@ -124,9 +121,8 @@ function Book({
 export default function FlipBookScene({
   pages,
   onPageChange,
-  fullscreen = false,
-  controlsVisible = true,
   spread = false,
+  controllerRef,
 }: FlipBookSceneProps) {
   if (!pages || pages.length === 0) {
     return (
@@ -137,62 +133,46 @@ export default function FlipBookScene({
   }
 
   return (
-    <>
-      <Canvas
-        camera={{
-          position: [0, 10, 2],
-          fov: 50,
-          near: 0.1,
-          far: 1000,
-        }}
-        gl={{
-          antialias: true,
-          alpha: true,
-        }}
-        onCreated={({ scene }) => {
-          scene.background = new Color(0xf1f5f9);
-        }}
-        style={{ width: "100%", height: "100%" }}
-      >
-        <primitive object={new AmbientLight(0xffffff, 2)} />
-        <primitive
-          object={new DirectionalLight(0xffffff, 3)}
-          position={[5, 5, 5]}
-        />
+    <Canvas
+      camera={{
+        position: [0, 10, 2],
+        fov: 50,
+        near: 0.1,
+        far: 1000,
+      }}
+      gl={{
+        antialias: true,
+        alpha: true,
+      }}
+      onCreated={({ scene }) => {
+        scene.background = new Color(0xf1f5f9);
+      }}
+      style={{ width: "100%", height: "100%" }}
+    >
+      <primitive object={new AmbientLight(0xffffff, 2)} />
+      <primitive
+        object={new DirectionalLight(0xffffff, 3)}
+        position={[5, 5, 5]}
+      />
 
-        <OrbitControls
-          enableDamping
-          enableRotate={false}
-          enablePan={false}
-          enableZoom
-          minDistance={4}
-          maxDistance={16}
-          minPolarAngle={Math.PI / 3}
-          maxPolarAngle={Math.PI / 3}
-          makeDefault
-        />
+      {/* Rotation is disabled so the book can only be flipped, never orbited.
+          Zoom stays available on wheel/pinch. */}
+      <OrbitControls
+        enableDamping
+        enableRotate={false}
+        enablePan={false}
+        enableZoom
+        minDistance={3}
+        maxDistance={14}
+        makeDefault
+      />
 
-        <Book pages={pages} onPageChange={onPageChange} spread={spread} />
-      </Canvas>
-
-      <button
-        className={`prev-btn fixed bottom-6 left-4 z-20 rounded-full bg-surface-alt px-4 py-2 text-sm hover:bg-border transition-all duration-300 sm:px-5 sm:py-2.5 ${
-          fullscreen && !controlsVisible
-            ? "opacity-0 pointer-events-none translate-y-2"
-            : "opacity-100"
-        }`}
-      >
-        Previous
-      </button>
-      <button
-        className={`next-btn fixed bottom-6 right-4 z-20 rounded-full bg-surface-alt px-4 py-2 text-sm hover:bg-border transition-all duration-300 sm:px-5 sm:py-2.5 ${
-          fullscreen && !controlsVisible
-            ? "opacity-0 pointer-events-none translate-y-2"
-            : "opacity-100"
-        }`}
-      >
-        Next
-      </button>
-    </>
+      <Book
+        pages={pages}
+        onPageChange={onPageChange}
+        spread={spread}
+        controllerRef={controllerRef}
+      />
+    </Canvas>
   );
 }

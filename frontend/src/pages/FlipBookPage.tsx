@@ -3,8 +3,10 @@ import { useParams, Link } from "react-router-dom";
 import { lazy, Suspense } from "react";
 import { ArrowLeft, Maximize, Minimize } from "lucide-react";
 import { playPageFlip } from "../lib/sound";
+import type { FlipBookController } from "../components/FlipBookScene";
 
 const FlipBookScene = lazy(() => import("../components/FlipBookScene"));
+const FlipBookMobile = lazy(() => import("../components/FlipBookMobile"));
 
 interface FlipbookData {
   yearbook_id: string;
@@ -32,11 +34,27 @@ export default function FlipBookPage() {
     () => typeof window !== "undefined" && window.innerWidth >= 768
   );
 
+  // Populated by whichever view is active so the shared buttons and keyboard
+  // handler can drive it.
+  const controllerRef = useRef<FlipBookController | null>(null);
+
+  const goNext = useCallback(() => controllerRef.current?.next(), []);
+  const goPrev = useCallback(() => controllerRef.current?.prev(), []);
+
   useEffect(() => {
     const onResize = () => setIsDesktop(window.innerWidth >= 768);
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
   }, []);
+
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "ArrowRight" || e.key === " ") goNext();
+      if (e.key === "ArrowLeft") goPrev();
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [goNext, goPrev]);
 
   // Memoized so the URL list keeps a stable identity. FlipBookScene's effect
   // depends on this array; without memoizing, every render produced a new
@@ -185,20 +203,34 @@ export default function FlipBookPage() {
         )}
       </button>
 
-      {/* 3D Flipbook — full viewport */}
+      {/* Yearbook view — 3D spread on desktop, single page on mobile */}
       <div className="absolute inset-0">
         <Suspense
           fallback={
             <div className="flex h-full w-full items-center justify-center text-text-muted">
-              Loading 3D Flipbook...
+              Loading yearbook...
             </div>
           }
         >
-          <FlipBookScene pages={pages} onPageChange={handlePageChange} fullscreen={isFullscreen} controlsVisible={controlsVisible} spread={isDesktop} />
+          {isDesktop ? (
+            <FlipBookScene
+              pages={pages}
+              onPageChange={handlePageChange}
+              spread
+              controllerRef={controllerRef}
+            />
+          ) : (
+            <FlipBookMobile
+              pages={pages}
+              currentPage={currentPage}
+              onPageChange={handlePageChange}
+              controllerRef={controllerRef}
+            />
+          )}
         </Suspense>
       </div>
 
-      {/* Page indicator — fades with controls */}
+      {/* Page indicator */}
       {pages.length > 0 && (
         <div
           className={`absolute bottom-20 left-1/2 -translate-x-1/2 z-20 text-text-subtle text-sm transition-opacity duration-500 ${
@@ -208,6 +240,28 @@ export default function FlipBookPage() {
           Page {currentPage} of {pages.length}
         </div>
       )}
+
+      {/* Page turn controls */}
+      <button
+        onClick={goPrev}
+        className={`prev-btn fixed bottom-6 left-4 z-20 rounded-full bg-surface-alt px-4 py-2 text-sm hover:bg-border transition-all duration-300 sm:px-5 sm:py-2.5 ${
+          isFullscreen && !controlsVisible
+            ? "opacity-0 pointer-events-none translate-y-2"
+            : "opacity-100"
+        }`}
+      >
+        Previous
+      </button>
+      <button
+        onClick={goNext}
+        className={`next-btn fixed bottom-6 right-4 z-20 rounded-full bg-surface-alt px-4 py-2 text-sm hover:bg-border transition-all duration-300 sm:px-5 sm:py-2.5 ${
+          isFullscreen && !controlsVisible
+            ? "opacity-0 pointer-events-none translate-y-2"
+            : "opacity-100"
+        }`}
+      >
+        Next
+      </button>
     </div>
   );
 }
