@@ -249,9 +249,7 @@ export default function FlipBookPage() {
       {pages.length > 0 && currentPage >= 1 && (
         <button
           onClick={() => setZoomPage(currentPage)}
-          className={`fixed top-4 right-16 z-20 p-2 rounded-lg bg-surface-alt/80 hover:bg-surface-alt border border-border transition-all duration-300 ${
-            opacity-100
-          }`}
+          className="fixed top-4 right-16 z-20 p-2 rounded-lg bg-surface-alt/80 hover:bg-surface-alt border border-border transition-all duration-300 opacity-100"
           title="Zoom into this page"
           aria-label="Zoom into this page"
         >
@@ -263,9 +261,7 @@ export default function FlipBookPage() {
       {pages.length > 0 && (
         <button
           onClick={() => setGridOpen(true)}
-          className={`fixed top-4 right-28 z-20 p-2 rounded-lg bg-surface-alt/80 hover:bg-surface-alt border border-border transition-all duration-300 ${
-            opacity-100
-          }`}
+          className="fixed top-4 right-28 z-20 p-2 rounded-lg bg-surface-alt/80 hover:bg-surface-alt border border-border transition-all duration-300 opacity-100"
           title="View all pages"
           aria-label="View all pages"
         >
@@ -285,17 +281,13 @@ export default function FlipBookPage() {
       {/* Page turn controls */}
       <button
         onClick={goPrev}
-        className={`prev-btn fixed bottom-6 left-4 z-20 rounded-full bg-surface-alt px-4 py-2 text-sm hover:bg-border transition-all duration-300 sm:px-5 sm:py-2.5 ${
-          opacity-100
-        }`}
+        className="prev-btn fixed bottom-6 left-4 z-20 rounded-full bg-surface-alt px-4 py-2 text-sm hover:bg-border transition-all duration-300 sm:px-5 sm:py-2.5 opacity-100"
       >
         Previous
       </button>
       <button
         onClick={goNext}
-        className={`next-btn fixed bottom-6 right-4 z-20 rounded-full bg-surface-alt px-4 py-2 text-sm hover:bg-border transition-all duration-300 sm:px-5 sm:py-2.5 ${
-          opacity-100
-        }`}
+        className="next-btn fixed bottom-6 right-4 z-20 rounded-full bg-surface-alt px-4 py-2 text-sm hover:bg-border transition-all duration-300 sm:px-5 sm:py-2.5 opacity-100"
       >
         Next
       </button>
