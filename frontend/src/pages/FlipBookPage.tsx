@@ -159,7 +159,8 @@ export default function FlipBookPage() {
 
   return (
     <div className="fixed inset-0 z-50 bg-surface text-text font-sans">
-      <div className="pointer-events-none absolute top-4 left-0 z-10 w-full text-center">
+      {/* Top bar — Back only */}
+      <div className="pointer-events-none absolute top-4 left-0 z-10 w-full flex justify-center">
         <Link
           to="/"
           className="pointer-events-auto inline-flex items-center gap-2 text-text-muted hover:text-text transition-colors"
@@ -167,18 +168,6 @@ export default function FlipBookPage() {
           <ArrowLeft className="w-4 h-4" />
           Back
         </Link>
-        <div className="pointer-events-auto mt-3 flex justify-center">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search pages by filename..."
-              className="rounded-full bg-surface-alt/90 border border-border pl-9 pr-4 py-1.5 text-sm text-text placeholder:text-text-subtle focus:outline-none focus:border-primary w-64"
-            />
-          </div>
-        </div>
       </div>
 
       {/* Yearbook view — 3D spread on desktop, single page on mobile.
@@ -245,52 +234,61 @@ export default function FlipBookPage() {
         </Suspense>
       </div>
 
-      {/* Zoom button — discoverable alternative to clicking the page */}
-      {pages.length > 0 && currentPage >= 1 && (
-        <button
-          onClick={() => setZoomPage(currentPage)}
-          className="fixed top-4 right-16 z-20 p-2 rounded-lg bg-surface-alt/80 hover:bg-surface-alt border border-border transition-all duration-300 opacity-100"
-          title="Zoom into this page"
-          aria-label="Zoom into this page"
-        >
-          <ZoomIn className="w-5 h-5 text-text-muted" />
-        </button>
-      )}
-
-      {/* Grid overview — see every page at once */}
+      {/* Bottom toolbar — all controls in one row */}
       {pages.length > 0 && (
-        <button
-          onClick={() => setGridOpen(true)}
-          className="fixed top-4 right-28 z-20 p-2 rounded-lg bg-surface-alt/80 hover:bg-surface-alt border border-border transition-all duration-300 opacity-100"
-          title="View all pages"
-          aria-label="View all pages"
-        >
-          <LayoutGrid className="w-5 h-5 text-text-muted" />
-        </button>
-      )}
+        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2">
+          <button
+            onClick={goPrev}
+            className="rounded-full bg-surface-alt/90 hover:bg-surface-alt border border-border px-3 py-2 text-sm transition-colors"
+            aria-label="Previous page"
+          >
+            Previous
+          </button>
 
-      {/* Page indicator */}
-      {pages.length > 0 && (
-        <div
-          className="absolute bottom-20 left-1/2 -translate-x-1/2 z-20 text-text-subtle text-sm transition-opacity duration-500 opacity-100"
-        >
-          Page {currentPage} of {pages.length}
+          <span className="text-text-subtle text-sm tabular-nums min-w-[5rem] text-center">
+            Page {currentPage} of {pages.length}
+          </span>
+
+          <button
+            onClick={goNext}
+            className="rounded-full bg-surface-alt/90 hover:bg-surface-alt border border-border px-3 py-2 text-sm transition-colors"
+            aria-label="Next page"
+          >
+            Next
+          </button>
+
+          <div className="w-px h-6 bg-border mx-1" />
+
+          <div className="relative">
+            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-text-muted pointer-events-none" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search..."
+              className="rounded-full bg-surface-alt/90 border border-border pl-8 pr-3 py-1.5 text-xs text-text placeholder:text-text-subtle focus:outline-none focus:border-primary w-32"
+            />
+          </div>
+
+          <button
+            onClick={() => setZoomPage(currentPage)}
+            className="p-2 rounded-lg bg-surface-alt/90 hover:bg-surface-alt border border-border transition-colors"
+            title="Zoom into this page"
+            aria-label="Zoom into this page"
+          >
+            <ZoomIn className="w-4 h-4 text-text-muted" />
+          </button>
+
+          <button
+            onClick={() => setGridOpen(true)}
+            className="p-2 rounded-lg bg-surface-alt/90 hover:bg-surface-alt border border-border transition-colors"
+            title="View all pages"
+            aria-label="View all pages"
+          >
+            <LayoutGrid className="w-4 h-4 text-text-muted" />
+          </button>
         </div>
       )}
-
-      {/* Page turn controls */}
-      <button
-        onClick={goPrev}
-        className="prev-btn fixed bottom-6 left-4 z-20 rounded-full bg-surface-alt px-4 py-2 text-sm hover:bg-border transition-all duration-300 sm:px-5 sm:py-2.5 opacity-100"
-      >
-        Previous
-      </button>
-      <button
-        onClick={goNext}
-        className="next-btn fixed bottom-6 right-4 z-20 rounded-full bg-surface-alt px-4 py-2 text-sm hover:bg-border transition-all duration-300 sm:px-5 sm:py-2.5 opacity-100"
-      >
-        Next
-      </button>
 
       {/* Tap-to-zoom overlay */}
       {zoomPage !== null && (
