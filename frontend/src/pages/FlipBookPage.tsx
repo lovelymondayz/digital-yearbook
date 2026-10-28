@@ -159,17 +159,6 @@ export default function FlipBookPage() {
 
   return (
     <div className="fixed inset-0 z-50 bg-surface text-text font-sans">
-      {/* Top bar — Back only */}
-      <div className="pointer-events-none absolute top-4 left-0 z-10 w-full flex justify-center">
-        <Link
-          to="/"
-          className="pointer-events-auto inline-flex items-center gap-2 text-text-muted hover:text-text transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Back
-        </Link>
-      </div>
-
       {/* Yearbook view — 3D spread on desktop, single page on mobile.
           Tapping the page opens the zoom overlay. A drag is ignored so
           touch/scroll gestures don't trigger it. */}
@@ -237,6 +226,16 @@ export default function FlipBookPage() {
       {/* Bottom toolbar — all controls in one row */}
       {pages.length > 0 && (
         <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2">
+          <Link
+            to="/"
+            className="inline-flex items-center gap-1 text-text-muted hover:text-text transition-colors px-2 py-1"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span className="text-xs">Back</span>
+          </Link>
+
+          <div className="w-px h-6 bg-border mx-1" />
+
           <button
             onClick={goPrev}
             className="rounded-full bg-surface-alt/90 hover:bg-surface-alt border border-border px-3 py-2 text-sm transition-colors"
