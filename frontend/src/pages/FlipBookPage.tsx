@@ -32,9 +32,8 @@ export default function FlipBookPage() {
   const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [zoomPage, setZoomPage] = useState<number | null>(null);
   const [gridOpen, setGridOpen] = useState(false);
-  // Pointer-down position, used to tell a tap apart from a drag before
-  // opening the zoom overlay.
   const pointerDownRef = useRef<{ x: number; y: number } | null>(null);
+  const swipeRef = useRef(false);
 
   // Desktop (>= 768px) shows a 2-page spread; mobile shows a single page.
   const [isDesktop, setIsDesktop] = useState(
@@ -225,8 +224,31 @@ export default function FlipBookPage() {
         className="absolute inset-0"
         onPointerDown={(e) => {
           pointerDownRef.current = { x: e.clientX, y: e.clientY };
+          swipeRef.current = false;
+        }}
+        onPointerUp={(e) => {
+          const down = pointerDownRef.current;
+          pointerDownRef.current = null;
+          if (!down) return;
+          const dx = e.clientX - down.x;
+          const dy = e.clientY - down.y;
+          const dist = Math.hypot(dx, dy);
+          // Horizontal swipe on mobile → flip page
+          if (
+            !isDesktop &&
+            dist > 30 &&
+            Math.abs(dx) > Math.abs(dy) * 1.2
+          ) {
+            swipeRef.current = true;
+            if (dx < 0) goNext();
+            else goPrev();
+          }
         }}
         onClick={(e) => {
+          if (swipeRef.current) {
+            swipeRef.current = false;
+            return;
+          }
           const down = pointerDownRef.current;
           pointerDownRef.current = null;
           if (down && Math.hypot(e.clientX - down.x, e.clientY - down.y) > 6) return;
