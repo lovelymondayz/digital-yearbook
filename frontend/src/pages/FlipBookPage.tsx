@@ -211,7 +211,7 @@ export default function FlipBookPage() {
 
   return (
     <div className={`fixed inset-0 z-50 bg-surface text-text font-sans ${isFullscreen ? "fullscreen-mode" : ""}`}>
-      {/* Header — Back link only. Title hidden per request. */}\n      <div className="pointer-events-none absolute top-4 left-0 z-10 w-full text-center">
+      <div className="pointer-events-none absolute top-4 left-0 z-10 w-full text-center">
         <Link
           to="/"
           className="pointer-events-auto inline-flex items-center gap-2 text-text-muted hover:text-text transition-colors"
@@ -253,6 +253,7 @@ export default function FlipBookPage() {
           touch/scroll gestures don't trigger it. */}
       <div
         className="absolute inset-0"
+        style={{ touchAction: "none", cursor: "zoom-in" }}
         onPointerDown={(e) => {
           pointerDownRef.current = { x: e.clientX, y: e.clientY };
           swipeRef.current = false;
@@ -285,7 +286,6 @@ export default function FlipBookPage() {
           if (down && Math.hypot(e.clientX - down.x, e.clientY - down.y) > 6) return;
           if (currentPage >= 1) setZoomPage(currentPage);
         }}
-        style={{ cursor: "zoom-in" }}
       >
         <Suspense
           fallback={

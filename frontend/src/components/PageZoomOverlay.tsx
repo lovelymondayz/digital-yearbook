@@ -14,8 +14,7 @@ const ZOOM_STEP = 0.5;
 
 /**
  * Full-screen viewer for reading a single page at full resolution.
- * Supports wheel zoom, drag-to-pan, pinch-to-zoom, zoom buttons,
- * keyboard +/- and Escape.
+ * Supports wheel zoom, drag-to-pan, zoom buttons, keyboard +/- and Escape.
  */
 export default function PageZoomOverlay({
   src,
@@ -26,8 +25,6 @@ export default function PageZoomOverlay({
   const [zoom, setZoom] = useState(1);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const dragRef = useRef<{ startX: number; startY: number; baseX: number; baseY: number } | null>(null);
-  const pointersRef = useRef<Map<number, { x: number; y: number }>>(new Map());
-  const pinchRef = useRef<{ startDist: number; startZoom: number } | null>(null);
 
   const reset = () => {
     setZoom(1);
@@ -126,36 +123,11 @@ export default function PageZoomOverlay({
           });
         }}
         onPointerDown={(e) => {
-          if (zoom <= 1 && pinchRef.current) return;
-          const pt = { x: e.clientX, y: e.clientY };
-          pointersRef.current.set(e.pointerId, pt);
+          if (zoom <= 1) return;
+          dragRef.current = { startX: e.clientX, startY: e.clientY, baseX: offset.x, baseY: offset.y };
           (e.target as HTMLElement).setPointerCapture(e.pointerId);
-          if (pointersRef.current.size === 2) {
-            const pts = Array.from(pointersRef.current.values());
-            pinchRef.current = {
-              startDist: Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y),
-              startZoom: zoom,
-            };
-            dragRef.current = null;
-          } else if (pointersRef.current.size === 1) {
-            dragRef.current = { startX: e.clientX, startY: e.clientY, baseX: offset.x, baseY: offset.y };
-            pinchRef.current = null;
-          }
         }}
         onPointerMove={(e) => {
-          const pts = pointersRef.current;
-          if (!pts.has(e.pointerId)) return;
-          pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
-
-          if (pts.size === 2 && pinchRef.current) {
-            const p = Array.from(pts.values());
-            const dist = Math.hypot(p[0].x - p[1].x, p[0].y - p[1].y);
-            const ratio = dist / pinchRef.current.startDist;
-            const next = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, pinchRef.current.startZoom * ratio));
-            setZoom(next);
-            return;
-          }
-
           const drag = dragRef.current;
           if (!drag) return;
           const next = clampOffset(
@@ -164,15 +136,11 @@ export default function PageZoomOverlay({
           );
           setOffset(next);
         }}
-        onPointerUp={(e) => {
-          pointersRef.current.delete(e.pointerId);
-          if (pointersRef.current.size < 2) pinchRef.current = null;
-          if (pointersRef.current.size === 0) dragRef.current = null;
+        onPointerUp={() => {
+          dragRef.current = null;
         }}
-        onPointerCancel={(e) => {
-          pointersRef.current.delete(e.pointerId);
-          if (pointersRef.current.size < 2) pinchRef.current = null;
-          if (pointersRef.current.size === 0) dragRef.current = null;
+        onPointerCancel={() => {
+          dragRef.current = null;
         }}
       >
         <img
