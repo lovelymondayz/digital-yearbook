@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import { lazy, Suspense } from "react";
-import { ArrowLeft, Maximize, Minimize, ZoomIn, LayoutGrid, Search } from "lucide-react";
+import { ArrowLeft, ZoomIn, LayoutGrid, Search } from "lucide-react";
 import { playPageFlip } from "../lib/sound";
 import type { FlipBookController } from "../components/FlipBookScene";
 
@@ -28,9 +28,6 @@ export default function FlipBookPage() {
   const [data, setData] = useState<FlipbookData | null>(null);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const [isFullscreen, setIsFullscreen] = useState(false);
-  const [controlsVisible, setControlsVisible] = useState(true);
-  const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [zoomPage, setZoomPage] = useState<number | null>(null);
   const [gridOpen, setGridOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -150,55 +147,6 @@ export default function FlipBookPage() {
     playPageFlip(0.3);
   }, []);
 
-  // Fullscreen toggle
-  const toggleFullscreen = useCallback(() => {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen().then(() => {
-        setIsFullscreen(true);
-      }).catch(() => {});
-    } else {
-      document.exitFullscreen().then(() => {
-        setIsFullscreen(false);
-        setControlsVisible(true);
-      }).catch(() => {});
-    }
-  }, []);
-
-  // Listen for fullscreen exit (Escape key)
-  useEffect(() => {
-    const handler = () => {
-      if (!document.fullscreenElement) {
-        setIsFullscreen(false);
-        setControlsVisible(true);
-      }
-    };
-    document.addEventListener("fullscreenchange", handler);
-    return () => document.removeEventListener("fullscreenchange", handler);
-  }, []);
-
-  // Idle-hide controls in fullscreen
-  const resetIdleTimer = useCallback(() => {
-    if (!isFullscreen) return;
-    setControlsVisible(true);
-    if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
-    idleTimerRef.current = setTimeout(() => {
-      setControlsVisible(false);
-    }, 3000);
-  }, [isFullscreen]);
-
-  useEffect(() => {
-    if (!isFullscreen) return;
-    const handler = () => resetIdleTimer();
-    document.addEventListener("mousemove", handler);
-    document.addEventListener("keydown", handler);
-    resetIdleTimer();
-    return () => {
-      document.removeEventListener("mousemove", handler);
-      document.removeEventListener("keydown", handler);
-      if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
-    };
-  }, [isFullscreen, resetIdleTimer]);
-
   if (loading) {
     return (
       <div className="h-screen w-screen flex items-center justify-center bg-surface">
@@ -210,7 +158,7 @@ export default function FlipBookPage() {
   const yearNum = year ? parseInt(year, 10) : data?.year || 0;
 
   return (
-    <div className={`fixed inset-0 z-50 bg-surface text-text font-sans ${isFullscreen ? "fullscreen-mode" : ""}`}>
+    <div className="fixed inset-0 z-50 bg-surface text-text font-sans">
       <div className="pointer-events-none absolute top-4 left-0 z-10 w-full text-center">
         <Link
           to="/"
@@ -232,21 +180,6 @@ export default function FlipBookPage() {
           </div>
         </div>
       </div>
-
-      {/* Fullscreen toggle button */}
-      <button
-        onClick={toggleFullscreen}
-        className={`fixed top-4 right-4 z-20 p-2 rounded-lg bg-surface-alt/80 hover:bg-surface-alt border border-border transition-all duration-300 ${
-          isFullscreen && !controlsVisible ? "opacity-0 pointer-events-none" : "opacity-100"
-        }`}
-        title={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
-      >
-        {isFullscreen ? (
-          <Minimize className="w-5 h-5 text-text-muted" />
-        ) : (
-          <Maximize className="w-5 h-5 text-text-muted" />
-        )}
-      </button>
 
       {/* Yearbook view — 3D spread on desktop, single page on mobile.
           Tapping the page opens the zoom overlay. A drag is ignored so
@@ -317,7 +250,7 @@ export default function FlipBookPage() {
         <button
           onClick={() => setZoomPage(currentPage)}
           className={`fixed top-4 right-16 z-20 p-2 rounded-lg bg-surface-alt/80 hover:bg-surface-alt border border-border transition-all duration-300 ${
-            isFullscreen && !controlsVisible ? "opacity-0 pointer-events-none" : "opacity-100"
+            opacity-100
           }`}
           title="Zoom into this page"
           aria-label="Zoom into this page"
@@ -331,7 +264,7 @@ export default function FlipBookPage() {
         <button
           onClick={() => setGridOpen(true)}
           className={`fixed top-4 right-28 z-20 p-2 rounded-lg bg-surface-alt/80 hover:bg-surface-alt border border-border transition-all duration-300 ${
-            isFullscreen && !controlsVisible ? "opacity-0 pointer-events-none" : "opacity-100"
+            opacity-100
           }`}
           title="View all pages"
           aria-label="View all pages"
@@ -343,9 +276,7 @@ export default function FlipBookPage() {
       {/* Page indicator */}
       {pages.length > 0 && (
         <div
-          className={`absolute bottom-20 left-1/2 -translate-x-1/2 z-20 text-text-subtle text-sm transition-opacity duration-500 ${
-            isFullscreen && !controlsVisible ? "opacity-0" : "opacity-100"
-          }`}
+          className="absolute bottom-20 left-1/2 -translate-x-1/2 z-20 text-text-subtle text-sm transition-opacity duration-500 opacity-100"
         >
           Page {currentPage} of {pages.length}
         </div>
@@ -355,9 +286,7 @@ export default function FlipBookPage() {
       <button
         onClick={goPrev}
         className={`prev-btn fixed bottom-6 left-4 z-20 rounded-full bg-surface-alt px-4 py-2 text-sm hover:bg-border transition-all duration-300 sm:px-5 sm:py-2.5 ${
-          isFullscreen && !controlsVisible
-            ? "opacity-0 pointer-events-none translate-y-2"
-            : "opacity-100"
+          opacity-100
         }`}
       >
         Previous
@@ -365,9 +294,7 @@ export default function FlipBookPage() {
       <button
         onClick={goNext}
         className={`next-btn fixed bottom-6 right-4 z-20 rounded-full bg-surface-alt px-4 py-2 text-sm hover:bg-border transition-all duration-300 sm:px-5 sm:py-2.5 ${
-          isFullscreen && !controlsVisible
-            ? "opacity-0 pointer-events-none translate-y-2"
-            : "opacity-100"
+          opacity-100
         }`}
       >
         Next
