@@ -26,10 +26,11 @@ func NewFlipbookHandler(yearbookService *service.YearbookService, immichService 
 
 // FlipbookPage represents a single page in the flipbook.
 type FlipbookPage struct {
-	PageNumber int    `json:"page_number"`
-	ImageURL   string `json:"image_url"`
-	Width      int    `json:"width,omitempty"`
-	Height     int    `json:"height,omitempty"`
+	PageNumber      int    `json:"page_number"`
+	ImageURL        string `json:"image_url"`
+	OriginalFileName string `json:"original_file_name,omitempty"`
+	Width           int    `json:"width,omitempty"`
+	Height          int    `json:"height,omitempty"`
 }
 
 // FlipbookData represents the full flipbook for a year.
@@ -118,10 +119,11 @@ func (h *FlipbookHandler) GetFlipbookPages(w http.ResponseWriter, r *http.Reques
 	pages := make([]FlipbookPage, 0, len(assets))
 	for i, asset := range assets {
 		pages = append(pages, FlipbookPage{
-			PageNumber: i + 1,
-			ImageURL:   fmt.Sprintf("/api/v1/flipbook/asset/%s", asset.ID),
-			Width:      asset.Width,
-			Height:     asset.Height,
+			PageNumber:       i + 1,
+			ImageURL:         fmt.Sprintf("/api/v1/flipbook/asset/%s", asset.ID),
+			OriginalFileName: asset.OriginalFileName,
+			Width:            asset.Width,
+			Height:           asset.Height,
 		})
 	}
 

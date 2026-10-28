@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import { lazy, Suspense } from "react";
-import { ArrowLeft, Maximize, Minimize, ZoomIn, LayoutGrid } from "lucide-react";
+import { ArrowLeft, Maximize, Minimize, ZoomIn, LayoutGrid, Search } from "lucide-react";
 import { playPageFlip } from "../lib/sound";
 import type { FlipBookController } from "../components/FlipBookScene";
 
@@ -17,6 +17,7 @@ interface FlipbookData {
   pages: {
     page_number: number;
     image_url: string;
+    original_file_name?: string;
     width?: number;
     height?: number;
   }[];
@@ -32,6 +33,7 @@ export default function FlipBookPage() {
   const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [zoomPage, setZoomPage] = useState<number | null>(null);
   const [gridOpen, setGridOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const pointerDownRef = useRef<{ x: number; y: number } | null>(null);
   const swipeRef = useRef(false);
 
@@ -72,17 +74,41 @@ export default function FlipBookPage() {
     return () => window.removeEventListener("keydown", handleKey);
   }, [goNext, goPrev, zoomPage]);
 
+  // Lightweight in-yearbook page search by filename.
+  const filteredPages = useMemo(() => {
+    if (!data?.pages) return [];
+    if (!searchQuery.trim()) return data.pages;
+    const q = searchQuery.toLowerCase();
+    return data.pages.filter((p) =>
+      (p.original_file_name || "").toLowerCase().includes(q)
+    );
+  }, [data, searchQuery]);
+
   // Memoized so the URL list keeps a stable identity. FlipBookScene's effect
   // depends on this array; without memoizing, every render produced a new
   // array and the book's sheets were rebuilt (and the open-spread position
   // re-applied) on each render. Must stay above the early returns so hook
   // order never changes between renders.
   const pages = useMemo(
-    () => data?.pages?.map((p) => p.image_url) || [],
-    [data]
+    () => (searchQuery.trim() ? filteredPages : data?.pages || []).map((p) => p.image_url),
+    [data, filteredPages, searchQuery]
   );
 
+  // Jump to the first match as the user types.
+  useEffect(() => {
+    if (searchQuery.trim() && filteredPages.length > 0) {
+      const first = filteredPages[0].page_number;
+      if (first !== currentPage) {
+        jumpToPage(first);
+      }
+    }
+  }, [searchQuery, filteredPages, currentPage, jumpToPage]);
+
   // Fetch flipbook data
+  useEffect(() => {
+    setSearchQuery("");
+  }, [year]);
+
   useEffect(() => {
     const load = async () => {
       try {
@@ -185,21 +211,26 @@ export default function FlipBookPage() {
 
   return (
     <div className={`fixed inset-0 z-50 bg-surface text-text font-sans ${isFullscreen ? "fullscreen-mode" : ""}`}>
-      {/* Header — the title stays visible at all times. It previously faded
-          out with the controls after 3s idle in fullscreen, which made the
-          yearbook title disappear on this route. */}
-      <div className="pointer-events-none absolute top-4 left-0 z-10 w-full text-center">
+      {/* Header — Back link only. Title hidden per request. */}\n      <div className="pointer-events-none absolute top-4 left-0 z-10 w-full text-center">
         <Link
           to="/"
-          className="pointer-events-auto inline-flex items-center gap-2 text-text-muted hover:text-text transition-colors mb-2"
+          className="pointer-events-auto inline-flex items-center gap-2 text-text-muted hover:text-text transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
           Back
         </Link>
-        <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-wide text-text">
-          {data?.title || `CLASS OF ${year || "..."}`}
-        </h1>
-        <p className="mt-1 text-sm text-text-muted">Digital Yearbook Memories</p>
+        <div className="pointer-events-auto mt-3 flex justify-center">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search pages by filename..."
+              className="rounded-full bg-surface-alt/90 border border-border pl-9 pr-4 py-1.5 text-sm text-text placeholder:text-text-subtle focus:outline-none focus:border-primary w-64"
+            />
+          </div>
+        </div>
       </div>
 
       {/* Fullscreen toggle button */}
