@@ -1,165 +1,185 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
-import { BookOpen, GraduationCap, Sparkles } from "lucide-react";
+import { BookOpen, GraduationCap, Search, AlertCircle, RefreshCw } from "lucide-react";
 
 interface YearbookYear {
- year: number;
- title: string;
- page_count: number;
- thumb_url: string;
+  year: number;
+  title: string;
+  page_count: number;
+  thumb_url: string;
+}
+
+function SkeletonCard() {
+  return (
+    <div className="rounded-xl border border-border bg-surface shadow-sm overflow-hidden">
+      <div className="aspect-[4/3] bg-surface-alt animate-pulse" />
+      <div className="p-5 space-y-3">
+        <div className="h-6 bg-surface-alt rounded animate-pulse w-24" />
+        <div className="h-4 bg-surface-alt rounded animate-pulse w-40" />
+        <div className="h-4 bg-surface-alt rounded animate-pulse w-32" />
+      </div>
+    </div>
+  );
 }
 
 export default function HomePage() {
- const [years, setYears] = useState<YearbookYear[]>([]);
- const [loading, setLoading] = useState(true);
+  const [years, setYears] = useState<YearbookYear[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
- useEffect(() => {
- const load = async () => {
- try {
- const API_URL = import.meta.env.VITE_API_URL || "";
- const res = await fetch(`${API_URL}/api/v1/flipbook/years`);
- if (res.ok) {
- const data = await res.json();
- if (Array.isArray(data) && data.length > 0) {
- setYears(data);
- return;
- }
- }
- } catch {
- // silent
- } finally {
- setLoading(false);
- }
- };
- load();
- }, []);
+  const load = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const API_URL = import.meta.env.VITE_API_URL || "";
+      const res = await fetch(`${API_URL}/api/v1/flipbook/years`);
+      if (!res.ok) {
+        throw new Error(`Server returned ${res.status}`);
+      }
+      const data = await res.json();
+      if (!Array.isArray(data)) {
+        throw new Error("Invalid response format");
+      }
+      setYears(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load yearbooks");
+    } finally {
+      setLoading(false);
+    }
+  };
 
- return (
- <div className="min-h-screen">
- {/* Hero Section */}
- <section className="relative min-h-[60vh] flex items-center justify-center overflow-hidden">
- <div className="absolute inset-0 bg-gradient-to-b from-surface via-surface-alt to-surface-alt" />
- <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary-subtle rounded-full blur-3xl animate-float" />
- <div
- className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-primary-subtle rounded-full blur-3xl animate-float"
- style={{ animationDelay: "3s" }}
- />
+  useEffect(() => {
+    load();
+  }, []);
 
- <div className="relative z-10 max-w-5xl mx-auto px-4 text-center">
- <motion.div
- initial={{ opacity: 0, y: 30 }}
- animate={{ opacity: 1, y: 0 }}
- transition={{ duration: 0.8 }}
- >
- <div className="inline-flex items-center gap-2 bg-surface-alt border border-border rounded-full px-4 py-2 mb-8">
- <GraduationCap className="w-4 h-4 text-primary" />
- <span className="text-sm text-text-muted">Thamrin University</span>
- </div>
+  return (
+    <div className="min-h-screen">
+      {/* Hero Section */}
+      <section className="relative bg-surface-alt border-b border-border">
+        <div className="max-w-6xl mx-auto px-4 md:px-8 py-16 md:py-24">
+          <div className="flex items-center gap-2 text-primary mb-6">
+            <GraduationCap className="w-5 h-5" />
+            <span className="text-sm font-medium tracking-wide uppercase">
+              Thamrin University
+            </span>
+          </div>
 
- <h1 className="text-5xl sm:text-7xl font-bold mb-6 leading-tight">
- <span className="text-primary">Digital Yearbook</span>
- <br />
- <span className="text-text">Thamrin</span>
- </h1>
+          <h1 className="text-4xl md:text-5xl font-bold text-text leading-tight mb-4">
+            Digital Yearbook
+          </h1>
 
- <p className="text-xl text-text-muted max-w-2xl mx-auto mb-4">
- Relive the memories. Flip through the pages.
- </p>
+          <p className="text-lg text-text-muted max-w-2xl mb-8">
+            Relive the memories. Flip through the pages of your graduating class.
+          </p>
 
- <div className="flex items-center justify-center gap-2 text-text-subtle text-sm mt-6">
- <Sparkles className="w-4 h-4" />
- <span>Select a year below to open the yearbook</span>
- </div>
- </motion.div>
- </div>
- </section>
+          {years.length > 0 && (
+            <div className="flex items-center gap-2 text-text-subtle text-sm">
+              <BookOpen className="w-4 h-4" />
+              <span>
+                {years.length} yearbook{years.length !== 1 ? "s" : ""} available — select one below to open
+              </span>
+            </div>
+          )}
+        </div>
+      </section>
 
- {/* Year Selection — Big Cards */}
- <section className="py-16 px-4">
- <div className="max-w-6xl mx-auto">
- {loading ? (
- <div className="flex justify-center py-20">
- <div className="w-10 h-10 border-2 border-primary border-t-transparent rounded-full animate-spin" />
- </div>
- ) : years.length === 0 ? (
- <div className="text-center py-20">
- <BookOpen className="w-16 h-16 text-text-subtle mx-auto mb-4" />
- <p className="text-text-muted text-lg">No yearbooks available yet.</p>
- <p className="text-text-subtle text-sm mt-2">
- Yearbooks will appear here once published.
- </p>
- </div>
- ) : (
- <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
- {years.map((y, i) => (
- <motion.div
- key={y.year}
- initial={{ opacity: 0, y: 30 }}
- whileInView={{ opacity: 1, y: 0 }}
- viewport={{ once: true }}
- transition={{ delay: i * 0.1, duration: 0.5 }}
- >
- <Link
- to={`/yearbook/${y.year}`}
- className="group block rounded-lg overflow-hidden bg-surface-alt border border-border hover:border-primary transition-colors duration-base hover:shadow-lg hover:shadow-sm hover:-translate-y-1"
- >
- {/* Thumbnail */}
- <div className="relative aspect-[4/3] overflow-hidden bg-surface">
- {y.thumb_url ? (
- <img
- src={y.thumb_url}
- alt={y.title}
- className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-slow"
- loading="lazy"
- />
- ) : (
- <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-surface to-surface-alt">
- <GraduationCap className="w-16 h-16 text-text-subtle" />
- </div>
- )}
- {/* Overlay gradient */}
- <div className="absolute inset-0 bg-gradient-to-t from-surface/80 via-transparent to-transparent" />
- {/* Year badge */}
- <div className="absolute top-4 left-4 bg-primary text-text text-sm font-bold px-3 py-1 rounded-md">
- {y.year}
- </div>
- {/* Page count */}
- {y.page_count > 0 && (
- <div className="absolute top-4 right-4 bg-surface text-text-muted text-xs px-2 py-1 rounded-md border border-border">
- {y.page_count} pages
- </div>
- )}
- </div>
+      {/* Year Selection */}
+      <section className="py-12 md:py-16 px-4 md:px-8">
+        <div className="max-w-6xl mx-auto">
+          {error && (
+            <div className="mb-8 rounded-lg border border-danger/20 bg-danger-subtle p-4 flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-danger mt-0.5 flex-shrink-0" />
+              <div className="flex-1">
+                <p className="text-sm text-danger font-medium">Unable to load yearbooks</p>
+                <p className="text-sm text-danger/80 mt-1">{error}</p>
+              </div>
+              <button
+                onClick={load}
+                className="inline-flex items-center gap-1.5 text-sm text-danger hover:text-danger/80 font-medium transition-colors duration-fast"
+              >
+                <RefreshCw className="w-4 h-4" />
+                Retry
+              </button>
+            </div>
+          )}
 
- {/* Card footer */}
- <div className="p-5">
- <h3 className="text-xl font-bold text-text group-hover:text-primary transition-colors">
- Class of {y.year}
- </h3>
- <p className="text-text-muted text-sm mt-1">{y.title}</p>
- <div className="mt-4 inline-flex items-center gap-2 text-primary text-sm font-medium group-hover:text-primary-hover transition-colors">
- <BookOpen className="w-4 h-4" />
- <span>Open Yearbook</span>
- <span className="group-hover:translate-x-1 transition-transform">→</span>
- </div>
- </div>
- </Link>
- </motion.div>
- ))}
- </div>
- )}
- </div>
- </section>
+          {loading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <SkeletonCard key={i} />
+              ))}
+            </div>
+          ) : years.length === 0 ? (
+            <div className="text-center py-16 md:py-24">
+              <BookOpen className="w-12 h-12 text-text-subtle mx-auto mb-4" />
+              <p className="text-text-muted text-lg mb-2">No yearbooks available yet.</p>
+              <p className="text-text-subtle text-sm">
+                Yearbooks will appear here once published.
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+              {years.map((y) => (
+                <Link
+                  key={y.year}
+                  to={`/yearbook/${y.year}`}
+                  className="group block rounded-xl border border-border bg-surface shadow-sm hover:shadow-md hover:border-primary/30 transition-all duration-base"
+                >
+                  {/* Thumbnail */}
+                  <div className="relative aspect-[4/3] overflow-hidden bg-surface-alt rounded-t-xl">
+                    {y.thumb_url ? (
+                      <img
+                        src={y.thumb_url}
+                        alt={y.title}
+                        className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-slow"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <GraduationCap className="w-12 h-12 text-text-subtle" />
+                      </div>
+                    )}
+                    {/* Year badge */}
+                    <div className="absolute top-3 left-3 bg-surface text-text text-sm font-semibold px-2.5 py-1 rounded-lg border border-border">
+                      {y.year}
+                    </div>
+                    {/* Page count */}
+                    {y.page_count > 0 && (
+                      <div className="absolute top-3 right-3 bg-surface/90 text-text-muted text-xs font-medium px-2 py-1 rounded-lg border border-border">
+                        {y.page_count} pages
+                      </div>
+                    )}
+                  </div>
 
- {/* Footer */}
- <section className="py-12 px-4 border-t border-border">
- <div className="max-w-4xl mx-auto text-center">
- <p className="text-text-subtle text-sm">
- Thamrin University Digital Yearbook Platform
- </p>
- </div>
- </section>
- </div>
- );
+                  {/* Card body */}
+                  <div className="p-5">
+                    <h3 className="text-lg font-semibold text-text mb-1">
+                      Class of {y.year}
+                    </h3>
+                    <p className="text-sm text-text-muted mb-4 truncate">
+                      {y.title}
+                    </p>
+                    <div className="inline-flex items-center gap-1.5 text-primary text-sm font-medium group-hover:text-primary-hover transition-colors duration-fast">
+                      <span>Open Yearbook</span>
+                      <span className="group-hover:translate-x-0.5 transition-transform duration-fast">→</span>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="border-t border-border py-8 px-4 md:px-8">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-text-subtle">
+          <p>Thamrin University Digital Yearbook Platform</p>
+          <p className="text-xs">
+            Powered by Immich
+          </p>
+        </div>
+      </footer>
+    </div>
+  );
 }
