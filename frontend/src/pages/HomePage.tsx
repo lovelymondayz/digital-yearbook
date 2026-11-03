@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { BookOpen, AlertCircle, RefreshCw } from "lucide-react";
-import Header from "../components/Header";
 
 interface YearbookYear {
   year: number;
@@ -53,31 +52,92 @@ export default function HomePage() {
     load();
   }, []);
 
+  const latest = years[0];
+  const totalPages = years.reduce((sum, y) => sum + (y.page_count || 0), 0);
+
   return (
     <div className="min-h-screen flex flex-col">
-      <Header />
-
       {/* Hero Section */}
       <section className="relative bg-surface-alt border-b border-border">
         <div className="max-w-6xl mx-auto px-4 md:px-8 py-16 md:py-24">
           <h1 className="text-4xl md:text-5xl font-bold text-text leading-tight mb-4">
             Thamrin Digital Yearbook
           </h1>
+          <div className="h-1 w-16 bg-primary rounded-full mb-6" />
 
           <p className="text-lg text-text-muted max-w-2xl mb-8">
             Relive the memories. Flip through the pages of your graduating class.
           </p>
 
-          {years.length > 0 && (
-            <div className="flex items-center gap-2 text-text-subtle text-sm">
+          <div className="flex flex-wrap items-center gap-6 text-sm text-text-subtle">
+            <div className="flex items-center gap-2">
               <BookOpen className="w-4 h-4" />
               <span>
-                {years.length} yearbook{years.length !== 1 ? "s" : ""} available — select one below to open
+                {years.length} yearbook{years.length !== 1 ? "s" : ""}
               </span>
             </div>
-          )}
+            {totalPages > 0 && (
+              <div>
+                <span className="font-medium text-text">{totalPages.toLocaleString()}</span> pages total
+              </div>
+            )}
+            {latest && (
+              <div>
+                Latest: <span className="font-medium text-text">Class of {latest.year}</span>
+              </div>
+            )}
+          </div>
         </div>
       </section>
+
+      {/* Featured latest yearbook */}
+      {latest && !loading && !error && (
+        <section className="py-10 md:py-12 px-4 md:px-8">
+          <div className="max-w-6xl mx-auto">
+            <Link
+              to={`/yearbook/${latest.year}`}
+              className="group block rounded-2xl border border-border bg-surface shadow-sm hover:shadow-md hover:border-primary/30 transition-all duration-base overflow-hidden"
+            >
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="relative aspect-[4/3] md:aspect-auto bg-surface-alt">
+                  {latest.thumb_url ? (
+                    <img
+                      src={latest.thumb_url}
+                      alt={latest.title}
+                      className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-slow"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <span className="text-6xl font-bold text-text-subtle/20">{latest.year}</span>
+                    </div>
+                  )}
+                </div>
+                <div className="p-6 md:p-8 flex flex-col justify-center">
+                  <p className="text-xs font-semibold text-primary tracking-wide uppercase mb-2">
+                    Latest Yearbook
+                  </p>
+                  <h3 className="text-2xl font-bold text-text mb-2">
+                    Class of {latest.year}
+                  </h3>
+                  <p className="text-sm text-text-muted mb-4 truncate">
+                    {latest.title}
+                  </p>
+                  <p className="text-sm text-text-subtle mb-6">
+                    {latest.page_count > 0
+                      ? `${latest.page_count} pages`
+                      : "Open to explore"}
+                  </p>
+                  <div className="inline-flex items-center gap-2 text-primary text-sm font-semibold group-hover:text-primary-hover transition-colors duration-fast w-fit">
+                    <span>Open Yearbook</span>
+                    <span className="group-hover:translate-x-1 transition-transform duration-fast">→</span>
+                  </div>
+                </div>
+              </div>
+            </Link>
+          </div>
+        </section>
+      )}
 
       {/* Year Selection */}
       <section className="py-12 md:py-16 px-4 md:px-8">
