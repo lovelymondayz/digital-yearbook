@@ -30,11 +30,6 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link to="/search" className="hover:text-text transition-colors duration-base">
-                  Search
-                </Link>
-              </li>
-              <li>
                 <a
                   href="https://www.thamrin.ac.id"
                   target="_blank"
@@ -42,16 +37,6 @@ export default function Footer() {
                   className="hover:text-text transition-colors duration-base"
                 >
                   Thamrin University
-                </a>
-              </li>
-              <li>
-                <a
-                  href="https://github.com/lovelymondayz/digital-yearbook"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:text-text transition-colors duration-base"
-                >
-                  GitHub
                 </a>
               </li>
             </ul>

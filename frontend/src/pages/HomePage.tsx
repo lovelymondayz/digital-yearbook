@@ -52,7 +52,6 @@ export default function HomePage() {
     load();
   }, []);
 
-  const latest = years[0];
   const totalPages = years.reduce((sum, y) => sum + (y.page_count || 0), 0);
 
   return (
@@ -81,63 +80,14 @@ export default function HomePage() {
                 <span className="font-medium text-text">{totalPages.toLocaleString()}</span> pages total
               </div>
             )}
-            {latest && (
+            {years[0] && (
               <div>
-                Latest: <span className="font-medium text-text">Class of {latest.year}</span>
+                Latest: <span className="font-medium text-text">Class of {years[0].year}</span>
               </div>
             )}
           </div>
         </div>
       </section>
-
-      {/* Featured latest yearbook */}
-      {latest && !loading && !error && (
-        <section className="py-10 md:py-12 px-4 md:px-8">
-          <div className="max-w-6xl mx-auto">
-            <Link
-              to={`/yearbook/${latest.year}`}
-              className="group block rounded-2xl border border-border bg-surface shadow-sm hover:shadow-md hover:border-primary/30 transition-all duration-base overflow-hidden"
-            >
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="relative aspect-[4/3] md:aspect-auto bg-surface-alt">
-                  {latest.thumb_url ? (
-                    <img
-                      src={latest.thumb_url}
-                      alt={latest.title}
-                      className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-slow"
-                      loading="lazy"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <span className="text-6xl font-bold text-text-subtle/20">{latest.year}</span>
-                    </div>
-                  )}
-                </div>
-                <div className="p-6 md:p-8 flex flex-col justify-center">
-                  <p className="text-xs font-semibold text-primary tracking-wide uppercase mb-2">
-                    Latest Yearbook
-                  </p>
-                  <h3 className="text-2xl font-bold text-text mb-2">
-                    Class of {latest.year}
-                  </h3>
-                  <p className="text-sm text-text-muted mb-4 truncate">
-                    {latest.title}
-                  </p>
-                  <p className="text-sm text-text-subtle mb-6">
-                    {latest.page_count > 0
-                      ? `${latest.page_count} pages`
-                      : "Open to explore"}
-                  </p>
-                  <div className="inline-flex items-center gap-2 text-primary text-sm font-semibold group-hover:text-primary-hover transition-colors duration-fast w-fit">
-                    <span>Open Yearbook</span>
-                    <span className="group-hover:translate-x-1 transition-transform duration-fast">→</span>
-                  </div>
-                </div>
-              </div>
-            </Link>
-          </div>
-        </section>
-      )}
 
       {/* Year Selection */}
       <section className="py-12 md:py-16 px-4 md:px-8">
