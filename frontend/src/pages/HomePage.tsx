@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { BookOpen, GraduationCap, Search, AlertCircle, RefreshCw } from "lucide-react";
+import { BookOpen, AlertCircle, RefreshCw } from "lucide-react";
+import Header from "../components/Header";
 
 interface YearbookYear {
   year: number;
@@ -53,19 +54,14 @@ export default function HomePage() {
   }, []);
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen flex flex-col">
+      <Header />
+
       {/* Hero Section */}
       <section className="relative bg-surface-alt border-b border-border">
         <div className="max-w-6xl mx-auto px-4 md:px-8 py-16 md:py-24">
-          <div className="flex items-center gap-2 text-primary mb-6">
-            <GraduationCap className="w-5 h-5" />
-            <span className="text-sm font-medium tracking-wide uppercase">
-              Thamrin University
-            </span>
-          </div>
-
           <h1 className="text-4xl md:text-5xl font-bold text-text leading-tight mb-4">
-            Digital Yearbook
+            Thamrin Digital Yearbook
           </h1>
 
           <p className="text-lg text-text-muted max-w-2xl mb-8">
@@ -136,7 +132,7 @@ export default function HomePage() {
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
-                        <GraduationCap className="w-12 h-12 text-text-subtle" />
+                        <span className="text-4xl font-bold text-text-subtle/30">{y.year}</span>
                       </div>
                     )}
                     {/* Year badge */}
@@ -172,9 +168,9 @@ export default function HomePage() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-border py-8 px-4 md:px-8">
+      <footer className="border-t border-border py-8 px-4 md:px-8 mt-auto">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-text-subtle">
-          <p>Thamrin University Digital Yearbook Platform</p>
+          <p>© {new Date().getFullYear()} Thamrin University. All rights reserved.</p>
           <p className="text-xs">
             Powered by Immich
           </p>

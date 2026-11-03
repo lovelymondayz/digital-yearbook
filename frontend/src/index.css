@@ -45,21 +45,21 @@
  }
 
  .page-flip {
- perspective: 1500px;
- transform-style: preserve-3d;
+  perspective: 2000px;
+  transform-style: preserve-3d;
  }
 
  .page-flip-enter {
- animation: pageFlipIn 0.6s ease-out;
+  animation: pageFlipIn 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
  }
 
  .page-flip-exit {
-   animation: pageFlipOut 0.4s ease-in;
+   animation: pageFlipOut 0.5s cubic-bezier(0.55, 0.06, 0.68, 0.19);
  }
 
  /* Reverse page turn (used by the single-page mobile view) */
  .page-flip-enter-prev {
-   animation: pageFlipInPrev 0.6s ease-out;
+   animation: pageFlipInPrev 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
  }
  }
 
@@ -74,18 +74,36 @@
 }
 
 @keyframes pageFlipIn {
- from { transform: rotateY(-90deg); opacity: 0; }
- to { transform: rotateY(0deg); opacity: 1; }
+  from {
+    transform: perspective(2000px) rotateY(-110deg) translateZ(-30px) scale(0.92);
+    opacity: 0;
+  }
+  to {
+    transform: perspective(2000px) rotateY(0deg) translateZ(0) scale(1);
+    opacity: 1;
+  }
 }
 
 @keyframes pageFlipOut {
-  from { transform: rotateY(0deg); opacity: 1; }
-  to { transform: rotateY(90deg); opacity: 0; }
+  from {
+    transform: perspective(2000px) rotateY(0deg) translateZ(0) scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: perspective(2000px) rotateY(110deg) translateZ(-30px) scale(0.92);
+    opacity: 0;
+  }
 }
 
 @keyframes pageFlipInPrev {
-  from { transform: rotateY(90deg); opacity: 0; }
-  to { transform: rotateY(0deg); opacity: 1; }
+  from {
+    transform: perspective(2000px) rotateY(110deg) translateZ(-30px) scale(0.92);
+    opacity: 0;
+  }
+  to {
+    transform: perspective(2000px) rotateY(0deg) translateZ(0) scale(1);
+    opacity: 1;
+  }
 }
 
 /* Fullscreen mode */

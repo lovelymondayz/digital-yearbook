@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 import { lazy, Suspense } from "react";
-import Navbar from "./Navbar";
+import Header from "./Header";
 import Footer from "./Footer";
 
 const FlipBookPage = lazy(() => import("../pages/FlipBookPage"));
@@ -17,7 +17,7 @@ function LoadingFallback() {
 /**
  * Router for /yearbook/:year
  * - If :year is numeric (e.g. /yearbook/2026) → FlipBookPage (full canvas, no Layout)
- * - If :year is a slug (e.g. /yearbook/2026S8) → YearbookPage with Navbar/Footer
+ * - If :year is a slug (e.g. /yearbook/2026S8) → YearbookPage with Header/Footer
  */
 export default function FlipBookRouter() {
  const { year } = useParams<{ year: string }>();
@@ -26,7 +26,7 @@ export default function FlipBookRouter() {
  const isNumericYear = /^\d+$/.test(year || "");
 
  if (isNumericYear) {
- // Full-canvas flipbook — no Navbar/Footer
+ // Full-canvas flipbook — no Header/Footer
  return (
  <Suspense fallback={<LoadingFallback />}>
  <FlipBookPage />
@@ -34,10 +34,10 @@ export default function FlipBookRouter() {
  );
  }
 
- // Slug-based yearbook — with Navbar/Footer
+ // Slug-based yearbook — with Header/Footer
  return (
  <div className="min-h-screen flex flex-col">
- <Navbar />
+ <Header />
  <main className="flex-1 flex flex-col">
  <Suspense fallback={<LoadingFallback />}>
  <YearbookPage />
