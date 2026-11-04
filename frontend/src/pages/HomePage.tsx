@@ -57,34 +57,42 @@ export default function HomePage() {
   return (
     <div className="min-h-screen flex flex-col">
       {/* Hero Section */}
-      <section className="relative bg-surface-alt border-b border-border">
-        <div className="max-w-6xl mx-auto px-4 md:px-8 py-16 md:py-24">
-          <h1 className="text-4xl md:text-5xl font-bold text-text leading-tight mb-4">
-            Thamrin Digital Yearbook
-          </h1>
-          <div className="h-1 w-16 bg-primary rounded-full mb-6" />
-
-          <p className="text-lg text-text-muted max-w-2xl mb-8">
-            Relive the memories. Flip through the pages of your graduating class.
-          </p>
-
-          <div className="flex flex-wrap items-center gap-6 text-sm text-text-subtle">
-            <div className="flex items-center gap-2">
-              <BookOpen className="w-4 h-4" />
-              <span>
-                {years.length} yearbook{years.length !== 1 ? "s" : ""}
+      <section className="relative border-b border-border bg-surface">
+        <div className="h-1 w-full bg-gradient-to-r from-primary via-primary-hover to-transparent" />
+        <div className="max-w-6xl mx-auto px-4 md:px-8 py-14 md:py-20">
+          <div className="max-w-2xl">
+            <div className="flex items-center gap-3 mb-4">
+              <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-primary-subtle bg-primary-subtle border border-primary-subtle/30 rounded-md px-3 py-1">
+                <BookOpen className="w-3.5 h-3.5" />
+                Thamrin University
               </span>
             </div>
-            {totalPages > 0 && (
-              <div>
-                <span className="font-medium text-text">{totalPages.toLocaleString()}</span> pages total
-              </div>
-            )}
-            {years[0] && (
-              <div>
-                Latest: <span className="font-medium text-text">Class of {years[0].year}</span>
-              </div>
-            )}
+            <h1 className="text-4xl md:text-5xl font-bold text-text leading-tight">
+              Digital Yearbook
+            </h1>
+            <p className="mt-3 text-base md:text-lg text-text-muted leading-relaxed max-w-xl">
+              Browse class albums and student profiles in an immersive 3D flipbook experience.
+            </p>
+          </div>
+
+          {/* Stats strip */}
+          <div className="mt-8 flex flex-wrap items-center gap-6 text-sm text-text-muted">
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 text-primary font-semibold">
+                <BookOpen className="w-4 h-4" />
+                {years.length} yearbooks
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-text-subtle">·</span>
+              <span className="font-medium text-text">{totalPages.toLocaleString()}</span>
+              <span className="text-text-subtle"> pages</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-text-subtle">·</span>
+              <span className="font-medium text-text">Class of {years[0]?.year ?? "—"}</span>
+              <span className="text-text-subtle"> latest</span>
+            </div>
           </div>
         </div>
       </section>
@@ -98,14 +106,14 @@ export default function HomePage() {
               <div className="flex-1">
                 <p className="text-sm text-danger font-medium">Unable to load yearbooks</p>
                 <p className="text-sm text-danger/80 mt-1">{error}</p>
+                <button
+                  onClick={load}
+                  className="inline-flex items-center gap-1.5 text-sm text-danger hover:text-danger/80 font-medium transition-colors duration-fast"
+                >
+                  <RefreshCw className="w-4 h-4" />
+                  Retry
+                </button>
               </div>
-              <button
-                onClick={load}
-                className="inline-flex items-center gap-1.5 text-sm text-danger hover:text-danger/80 font-medium transition-colors duration-fast"
-              >
-                <RefreshCw className="w-4 h-4" />
-                Retry
-              </button>
             </div>
           )}
 
@@ -129,10 +137,10 @@ export default function HomePage() {
                 <Link
                   key={y.year}
                   to={`/yearbook/${y.year}`}
-                  className="group block rounded-xl border border-border bg-surface shadow-sm hover:shadow-md hover:border-primary/30 transition-all duration-base"
+                  className="group block overflow-hidden rounded-xl bg-white shadow-sm hover:shadow-md transition-all duration-base border border-border/40 hover:border-primary/30"
                 >
                   {/* Thumbnail */}
-                  <div className="relative aspect-[4/3] overflow-hidden bg-surface-alt rounded-t-xl">
+                  <div className="relative aspect-[4/3] overflow-hidden bg-surface-alt">
                     {y.thumb_url ? (
                       <img
                         src={y.thumb_url}
@@ -146,12 +154,12 @@ export default function HomePage() {
                       </div>
                     )}
                     {/* Year badge */}
-                    <div className="absolute top-3 left-3 bg-surface text-text text-sm font-semibold px-2.5 py-1 rounded-lg border border-border">
+                    <div className="absolute top-3 left-3 bg-surface text-text text-sm font-semibold px-2.5 py-1 rounded-lg border border-border/50">
                       {y.year}
                     </div>
                     {/* Page count */}
                     {y.page_count > 0 && (
-                      <div className="absolute top-3 right-3 bg-surface/90 text-text-muted text-xs font-medium px-2 py-1 rounded-lg border border-border">
+                      <div className="absolute top-3 right-3 bg-surface/90 text-text-muted text-xs font-medium px-2 py-1 rounded-lg border border-border/50">
                         {y.page_count} pages
                       </div>
                     )}
@@ -176,16 +184,6 @@ export default function HomePage() {
           )}
         </div>
       </section>
-
-      {/* Footer */}
-      <footer className="border-t border-border py-8 px-4 md:px-8 mt-auto">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-text-subtle">
-          <p>© {new Date().getFullYear()} Thamrin University. All rights reserved.</p>
-          <p className="text-xs">
-            Powered by Immich
-          </p>
-        </div>
-      </footer>
     </div>
   );
 }
