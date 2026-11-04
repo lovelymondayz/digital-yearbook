@@ -34,7 +34,7 @@ export default function Navbar() {
  <BookOpen className="w-5 h-5 text-text" />
  </div>
  <span className="text-xl font-bold bg-gradient-to-r from-primary to-primary text-primary hidden sm:block">
- Yearbook
+ yearbook
  </span>
  </Link>
 
