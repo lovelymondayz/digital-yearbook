@@ -5,7 +5,7 @@
 
 set -e
 
-PROJECT_DIR="/root/hermes/digital-yearbook"
+PROJECT_DIR="/mnt/shared/digital-yearbook"
 COMPOSE="docker compose"
 
 cd "$PROJECT_DIR"

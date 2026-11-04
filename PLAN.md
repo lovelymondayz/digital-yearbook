@@ -154,7 +154,7 @@ GET  /api/v1/admin/audit-logs     → audit trail
 ## Deployment
 1. `git add -A && git commit && git push`
 2. SSH to VPS
-3. `cd /root/hermes/digital-yearbook && ./scripts/update.sh`
+3. `cd /mnt/shared/digital-yearbook && ./scripts/update.sh`
 4. Docker builds from committed code (NOT working directory)
 
 ## Constraints

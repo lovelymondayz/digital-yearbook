@@ -19,10 +19,10 @@ On the **new account**, create a blank repository:
 
 ## Step 2 — Switch the Remote
 
-From the VPS where the project lives (`/root/hermes/digital-yearbook`):
+From the VPS where the project lives (`/mnt/shared/digital-yearbook`):
 
 ```bash
-cd /root/hermes/digital-yearbook
+cd /mnt/shared/digital-yearbook
 
 # Remove old remote
 git remote remove origin
@@ -68,7 +68,7 @@ GitHub sends each push with an HMAC signature. The VPS validates this using a st
 Find where it lives:
 
 ```bash
-cd /root/hermes/digital-yearbook
+cd /mnt/shared/digital-yearbook
 grep -r "WEBHOOK_SECRET" .
 ```
 
@@ -103,7 +103,7 @@ chmod 600 /root/.github/pat
 Trigger a test push to confirm the full chain works:
 
 ```bash
-cd /root/hermes/digital-yearbook
+cd /mnt/shared/digital-yearbook
 git commit --allow-empty -m "test: verify deploy from new account"
 git push origin main
 ```

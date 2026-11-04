@@ -249,7 +249,7 @@ docker compose ps
 
 - [ ] Stop old containers:
   ```bash
-  cd /root/hermes/projects/digital-yearbook
+  cd /mnt/shared/digital-yearbook
   docker compose down
   ```
 - [ ] Do NOT delete the repo or `.env` yet — keep for 7 days as rollback
@@ -289,7 +289,7 @@ Database was not modified in a destructive way, so rollback is safe as long as t
 
 | Source | Destination on new LXC |
 |---|---|
-| `/root/hermes/projects/digital-yearbook/.env` | `/opt/selfhosted/digital-yearbook/.env` |
+| `/mnt/shared/digital-yearbook/.env` | `/opt/selfhosted/digital-yearbook/.env` |
 | `/root/backups/yearbook-*.sql` | `/opt/selfhosted/` |
 | `Thamrin-Assets/` inside repo | Already in git; no manual copy needed |
 
