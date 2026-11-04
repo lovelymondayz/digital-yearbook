@@ -321,4 +321,36 @@ chmod +x /opt/selfhosted/setup-yearbook.sh
 
 ---
 
+## 15. Clone Hermes Coder Profile (Optional)
+
+If you want the new LXC to run Hermes with the same coder profile, the shared profile lives at:
+
+```
+/mnt/shared/hermes-coder-profile/
+```
+
+Clone it to the new LXC's Hermes profiles directory:
+
+```bash
+# On new LXC — stop Hermes first
+systemctl stop hermes || true
+
+# Copy profile
+rsync -av /mnt/shared/hermes-coder-profile/ /root/.hermes/profiles/coder/
+
+# Fix permissions
+chmod 700 /root/.hermes/profiles/coder
+chmod 600 /root/.hermes/profiles/coder/.env
+
+# Edit .env with new LXC's Discord credentials
+nano /root/.hermes/profiles/coder/.env
+
+# Start Hermes
+systemctl start hermes
+```
+
+See `/mnt/shared/hermes-coder-profile/README.md` for full details.
+
+---
+
 *Plan created for digital-yearbook only. Other projects remain on the Hermes LXC.*
