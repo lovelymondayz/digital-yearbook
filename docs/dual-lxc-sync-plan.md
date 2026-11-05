@@ -153,3 +153,6 @@ If the watcher misbehaves on an LXC:
 systemctl --user stop digital-yearbook-watcher.timer
 systemctl --user disable digital-yearbook-watcher.timer
 ```
+
+
+Test commit for watcher docs-only skip check.
