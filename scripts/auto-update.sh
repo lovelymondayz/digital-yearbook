@@ -2,6 +2,14 @@
 # Auto-update watcher for digital-yearbook
 # Checks git for new commits and rebuilds Docker if needed
 # Designed to run every 10 minutes via systemd timer
+#
+# NOTE: /mnt/shared is shared between LXCs, so the .git directory is shared too.
+# That means another LXC's `git pull` updates *this* LXC's local HEAD silently.
+# Comparing local HEAD vs remote therefore misses updates (this LXC would think
+# it is "up to date" even though its Docker image is stale).
+#
+# Fix: track the commit this LXC has actually deployed in a per-LXC marker file
+# (/tmp/digital-yearbook-deployed). Rebuild whenever remote != deployed.
 
 set -euo pipefail
 
@@ -12,6 +20,7 @@ LOG_FILE="$LOG_DIR/auto-update.log"
 MAX_LOCK_AGE=600  # 10 minutes — force unlock if stale
 GIT_REMOTE="origin"
 GIT_BRANCH="main"
+DEPLOYED_FILE="/tmp/digital-yearbook-deployed"
 
 mkdir -p "$LOG_DIR"
 
@@ -40,30 +49,42 @@ fi
 # Fetch latest
 git fetch "$GIT_REMOTE" "$GIT_BRANCH" 2>&1 | tail -1 >> "$LOG_FILE" || true
 
-LOCAL=$(git rev-parse "refs/heads/$GIT_BRANCH" 2>/dev/null || echo "")
 REMOTE=$(git rev-parse "refs/remotes/$GIT_REMOTE/$GIT_BRANCH" 2>/dev/null || echo "")
+DEPLOYED=""
+[ -f "$DEPLOYED_FILE" ] && DEPLOYED=$(cat "$DEPLOYED_FILE" 2>/dev/null || echo "")
 
-if [ -z "$LOCAL" ] || [ -z "$REMOTE" ]; then
+if [ -z "$REMOTE" ]; then
   echo "$(date '+%Y-%m-%d %H:%M:%S') ERROR: failed to read git refs" >> "$LOG_FILE"
   exit 1
 fi
 
-if [ "$LOCAL" = "$REMOTE" ]; then
-  echo "$(date '+%Y-%m-%d %H:%M:%S') OK: up to date ($LOCAL)" >> "$LOG_FILE"
+# If this LXC already deployed the latest remote commit, nothing to do.
+if [ -n "$DEPLOYED" ] && [ "$DEPLOYED" = "$REMOTE" ]; then
+  echo "$(date '+%Y-%m-%d %H:%M:%S') OK: deployed ($DEPLOYED)" >> "$LOG_FILE"
   exit 0
 fi
 
-echo "$(date '+%Y-%m-%d %H:%M:%S') UPDATE: $LOCAL -> $REMOTE" >> "$LOG_FILE"
+echo "$(date '+%Y-%m-%d %H:%M:%S') UPDATE: deployed=${DEPLOYED:-none} -> $REMOTE" >> "$LOG_FILE"
 
-# Only rebuild if Docker-relevant files changed
-CHANGED=$(git diff --name-only "$LOCAL" "$REMOTE" 2>/dev/null || echo "")
-if ! echo "$CHANGED" | grep -qE '^(frontend/|backend/|docker-compose\.yml|Dockerfile|backend/Dockerfile|frontend/Dockerfile)'; then
+# Only rebuild if Docker-relevant files changed since this LXC last deployed.
+# On the first run (no marker) we rebuild unconditionally.
+NEEDS_REBUILD=true
+if [ -n "$DEPLOYED" ]; then
+  if CHANGED=$(git diff --name-only "$DEPLOYED" "$REMOTE" 2>/dev/null); then
+    if ! echo "$CHANGED" | grep -qE '^(frontend/|backend/|docker-compose\.yml|Dockerfile)'; then
+      NEEDS_REBUILD=false
+    fi
+  fi
+fi
+
+if [ "$NEEDS_REBUILD" = false ]; then
   echo "$(date '+%Y-%m-%d %H:%M:%S') SKIP: no Docker-relevant files changed" >> "$LOG_FILE"
   # Still pull so docs/scripts stay current
   git pull --ff-only "$GIT_REMOTE" "$GIT_BRANCH" >> "$LOG_FILE" 2>&1 || {
     echo "$(date '+%Y-%m-%d %H:%M:%S') ERROR: git pull failed" >> "$LOG_FILE"
     exit 1
   }
+  echo "$REMOTE" > "$DEPLOYED_FILE"
   echo "$(date '+%Y-%m-%d %H:%M:%S') OK: pulled docs/scripts only, no rebuild needed" >> "$LOG_FILE"
   exit 0
 fi
@@ -102,7 +123,8 @@ if curl -sf http://localhost:8081/health > /dev/null 2>&1; then
 fi
 
 if [ "$FRONTEND_OK" = true ] && [ "$BACKEND_OK" = true ]; then
-  # Clean up dangling images and build cache
+  # Only mark as deployed after a healthy deploy, so failures retry next run.
+  echo "$REMOTE" > "$DEPLOYED_FILE"
   echo "$(date '+%Y-%m-%d %H:%M:%S') INFO: pruning Docker cache..." >> "$LOG_FILE"
   docker image prune -f >> "$LOG_FILE" 2>&1 || true
   docker builder prune -f >> "$LOG_FILE" 2>&1 || true
