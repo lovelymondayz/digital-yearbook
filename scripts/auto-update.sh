@@ -55,6 +55,19 @@ fi
 
 echo "$(date '+%Y-%m-%d %H:%M:%S') UPDATE: $LOCAL -> $REMOTE" >> "$LOG_FILE"
 
+# Only rebuild if Docker-relevant files changed
+CHANGED=$(git diff --name-only "$LOCAL" "$REMOTE" 2>/dev/null || echo "")
+if ! echo "$CHANGED" | grep -qE '^(frontend/|backend/|docker-compose\.yml|Dockerfile|backend/Dockerfile|frontend/Dockerfile)'; then
+  echo "$(date '+%Y-%m-%d %H:%M:%S') SKIP: no Docker-relevant files changed" >> "$LOG_FILE"
+  # Still pull so docs/scripts stay current
+  git pull --ff-only "$GIT_REMOTE" "$GIT_BRANCH" >> "$LOG_FILE" 2>&1 || {
+    echo "$(date '+%Y-%m-%d %H:%M:%S') ERROR: git pull failed" >> "$LOG_FILE"
+    exit 1
+  }
+  echo "$(date '+%Y-%m-%d %H:%M:%S') OK: pulled docs/scripts only, no rebuild needed" >> "$LOG_FILE"
+  exit 0
+fi
+
 # Pull
 git pull --ff-only "$GIT_REMOTE" "$GIT_BRANCH" >> "$LOG_FILE" 2>&1 || {
   echo "$(date '+%Y-%m-%d %H:%M:%S') ERROR: git pull failed" >> "$LOG_FILE"
@@ -89,7 +102,11 @@ if curl -sf http://localhost:8081/health > /dev/null 2>&1; then
 fi
 
 if [ "$FRONTEND_OK" = true ] && [ "$BACKEND_OK" = true ]; then
-  echo "$(date '+%Y-%m-%d %H:%M:%S') SUCCESS: update deployed and healthy" >> "$LOG_FILE"
+  # Clean up dangling images and build cache
+  echo "$(date '+%Y-%m-%d %H:%M:%S') INFO: pruning Docker cache..." >> "$LOG_FILE"
+  docker image prune -f >> "$LOG_FILE" 2>&1 || true
+  docker builder prune -f >> "$LOG_FILE" 2>&1 || true
+  echo "$(date '+%Y-%m-%d %H:%M:%S') SUCCESS: update deployed and healthy, cache pruned" >> "$LOG_FILE"
 else
   echo "$(date '+%Y-%m-%d %H:%M:%S') ERROR: health check failed (frontend=$FRONTEND_OK backend=$BACKEND_OK)" >> "$LOG_FILE"
   exit 1

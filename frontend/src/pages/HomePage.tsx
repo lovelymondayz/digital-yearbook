@@ -62,7 +62,7 @@ export default function HomePage() {
         <div className="max-w-6xl mx-auto px-4 md:px-8 py-14 md:py-20">
           <div className="max-w-2xl">
             <div className="flex items-center gap-3 mb-4">
-              <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-primary-subtle bg-primary-subtle border border-primary-subtle/30 rounded-md px-3 py-1">
+              <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-primary bg-primary-subtle border border-primary/20 rounded-md px-3 py-1">
                 <BookOpen className="w-3.5 h-3.5" />
                 Thamrin University
               </span>
