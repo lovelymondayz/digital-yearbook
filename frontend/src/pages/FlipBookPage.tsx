@@ -5,6 +5,9 @@ import { ArrowLeft, ZoomIn, LayoutGrid, Search } from "lucide-react";
 import { playPageFlip } from "../lib/sound";
 import type { FlipBookController } from "../components/FlipBookScene";
 import { withSize } from "../lib/assetUrl";
+import { preloadBlobs } from "../lib/preload";
+import { PageTextureManager } from "../lib/pageTextures";
+import YearbookLoader from "../components/YearbookLoader";
 
 const FlipBookScene = lazy(() => import("../components/FlipBookScene"));
 const FlipBookMobile = lazy(() => import("../components/FlipBookMobile"));
@@ -32,6 +35,8 @@ export default function FlipBookPage() {
   const [zoomPage, setZoomPage] = useState<number | null>(null);
   const [gridOpen, setGridOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [textureManager, setTextureManager] = useState<PageTextureManager | null>(null);
+  const [preload, setPreload] = useState({ loaded: 0, total: 0 });
   const pointerDownRef = useRef<{ x: number; y: number } | null>(null);
   const swipeRef = useRef(false);
 
@@ -109,6 +114,9 @@ export default function FlipBookPage() {
   // Fetch flipbook data
   useEffect(() => {
     setSearchQuery("");
+    // Drop the previous year's book so the loading gate re-arms.
+    setLoading(true);
+    setTextureManager(null);
   }, [year]);
 
   useEffect(() => {
@@ -146,17 +154,69 @@ export default function FlipBookPage() {
     load();
   }, [year]);
 
+  // Download every page before mounting the book. quick_flipbook fetches pages
+  // two at a time, so without this a page turned to early showed a blank sheet.
+  useEffect(() => {
+    const pages = data?.pages ?? [];
+    if (pages.length === 0) return;
+
+    let cancelled = false;
+    const controller = new AbortController();
+    const urls = pages.map((p) => withSize(p.image_url, "preview"));
+
+    setPreload({ loaded: 0, total: urls.length });
+
+    preloadBlobs(urls, {
+      onProgress: (loaded, total) => {
+        if (!cancelled) setPreload({ loaded, total });
+      },
+      signal: controller.signal,
+    })
+      .then(async ({ blobs }) => {
+        if (cancelled) return;
+
+        const manager = new PageTextureManager(blobs);
+        manager.setPageList(urls);
+
+        // Decode the opening spread before revealing the book, so the first
+        // paint already shows real pages instead of the blank material.
+        await manager.ensureWindow(2);
+
+        if (cancelled) {
+          manager.dispose();
+          return;
+        }
+        setTextureManager(manager);
+      })
+      .catch(() => {
+        if (!cancelled) setTextureManager(null);
+      });
+
+    return () => {
+      cancelled = true;
+      controller.abort();
+    };
+  }, [data]);
+
+  useEffect(() => {
+    return () => textureManager?.dispose();
+  }, [textureManager]);
+
   // Handle page change from 3D book
   const handlePageChange = useCallback((page: number) => {
     setCurrentPage(page);
     playPageFlip(0.3);
   }, []);
 
-  if (loading) {
+  const hasPages = (data?.pages.length ?? 0) > 0;
+
+  if (loading || (hasPages && !textureManager)) {
     return (
-      <div className="h-screen w-screen flex items-center justify-center bg-surface">
-        <div className="text-text-muted text-lg">Loading Yearbook...</div>
-      </div>
+      <YearbookLoader
+        title={data?.title || `Class of ${year || "..."}`}
+        loaded={preload.loaded}
+        total={preload.total || data?.pages.length || 0}
+      />
     );
   }
 
@@ -236,6 +296,7 @@ export default function FlipBookPage() {
           {isDesktop ? (
             <FlipBookScene
               pages={bookPages}
+              textureManager={textureManager}
               onPageChange={handlePageChange}
               spread
               controllerRef={controllerRef}

@@ -3,6 +3,7 @@ import { OrbitControls } from "@react-three/drei";
 import { Color, AmbientLight, DirectionalLight, Clock } from "three";
 import { FlipBook } from "quick_flipbook";
 import { useEffect, useMemo, useRef } from "react";
+import type { PageTextureManager } from "../lib/pageTextures";
 
 /** Imperative handle the page uses for its shared Next/Previous buttons. */
 export interface FlipBookController {
@@ -14,6 +15,12 @@ export interface FlipBookController {
 
 interface FlipBookSceneProps {
   pages: string[];
+  /**
+   * Preloaded page textures. The book is mounted with materials from this
+   * manager and asks it to keep a window of textures resident around the page
+   * being turned to, so a page is never shown before its texture exists.
+   */
+  textureManager?: PageTextureManager | null;
   onPageChange?: (page: number) => void;
   /**
    * Desktop layout: the book is always open, so a 2-page spread is visible
@@ -25,11 +32,13 @@ interface FlipBookSceneProps {
 
 function Book({
   pages,
+  textureManager,
   onPageChange,
   spread = false,
   controllerRef,
 }: {
   pages: string[];
+  textureManager?: PageTextureManager | null;
   onPageChange?: (page: number) => void;
   spread?: boolean;
   controllerRef?: React.MutableRefObject<FlipBookController | null>;
@@ -52,19 +61,23 @@ function Book({
   }, []);
 
   useEffect(() => {
-    if (pages.length > 0) {
-      // quick_flipbook pads odd-length arrays by pushing "" onto the array it
-      // is given. Pass a copy so the caller's page list is never mutated —
-      // otherwise the page indicator counts the padding as a real page.
-      book.setPages([...pages]);
-      if (spread && !openedRef.current) {
-        // Open the book to progress 1 so both pages of the spread are visible
-        // from the first render. At progress 0 the library shows a lone cover.
-        openedRef.current = true;
-        book.currentPage = 2;
-      }
+    if (!textureManager || pages.length === 0) return;
+
+    // Pass materials rather than URLs: quick_flipbook's own loader fetches two
+    // pages at a time and leaves the rest as blank sheets, which is what showed
+    // up as gray pages. The manager already holds every page's bytes.
+    book.setPages(textureManager.setPageList(pages));
+
+    if (spread && !openedRef.current) {
+      // Open the book to progress 1 so both pages of the spread are visible
+      // from the first render. At progress 0 the library shows a lone cover.
+      openedRef.current = true;
+      book.currentPage = 2;
     }
-  }, [book, pages, spread]);
+
+    // Decode the opening spread before the loading screen goes away.
+    textureManager.ensureWindow(book.currentPage);
+  }, [book, textureManager, pages, spread]);
 
   useEffect(() => {
     const updateBookScale = () => {
@@ -86,6 +99,12 @@ function Book({
   useFrame(() => {
     const delta = clock.getDelta();
     book.animate(delta);
+
+    // Keep the resident texture window centred on the page being turned to.
+    // No-ops while the window is already warm, so calling it per frame is free.
+    if (textureManager && bookRef.current) {
+      textureManager.ensureWindow(bookRef.current.currentPage);
+    }
 
     if (bookRef.current && onPageChange) {
       const currentPage = bookRef.current.currentPage;
@@ -133,6 +152,7 @@ function Book({
 
 export default function FlipBookScene({
   pages,
+  textureManager,
   onPageChange,
   spread = false,
   controllerRef,
@@ -182,6 +202,7 @@ export default function FlipBookScene({
 
       <Book
         pages={pages}
+        textureManager={textureManager}
         onPageChange={onPageChange}
         spread={spread}
         controllerRef={controllerRef}
