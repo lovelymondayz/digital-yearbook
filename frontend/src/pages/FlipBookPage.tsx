@@ -4,7 +4,7 @@ import { lazy, Suspense } from "react";
 import { ArrowLeft, ZoomIn, LayoutGrid, Search } from "lucide-react";
 import { playPageFlip } from "../lib/sound";
 import type { FlipBookController } from "../components/FlipBookScene";
-import Header from "../components/Header";
+import { withSize } from "../lib/assetUrl";
 
 const FlipBookScene = lazy(() => import("../components/FlipBookScene"));
 const FlipBookMobile = lazy(() => import("../components/FlipBookMobile"));
@@ -82,15 +82,19 @@ export default function FlipBookPage() {
     );
   }, [data, searchQuery]);
 
-  // Memoized so the URL list keeps a stable identity. FlipBookScene's effect
-  // depends on this array; without memoizing, every render produced a new
-  // array and the book's sheets were rebuilt (and the open-spread position
-  // re-applied) on each render. Must stay above the early returns so hook
-  // order never changes between renders.
-  const pages = useMemo(
-    () => (searchQuery.trim() ? filteredPages : data?.pages || []).map((p) => p.image_url),
-    [data, filteredPages, searchQuery]
-  );
+  // Base proxy URLs — the grid overview appends its own thumbnail size.
+  const basePages = useMemo(() => filteredPages.map((p) => p.image_url), [
+    filteredPages,
+  ]);
+
+  // The 3D book, mobile view and zoom overlay render at screen size, so they
+  // request the 1440px preview variant instead of the 35 MB original PNG —
+  // which also exceeds gl.MAX_TEXTURE_SIZE on many GPUs and rendered blank.
+  // Memoized so the array identity is stable: FlipBookScene's effect depends on
+  // it, and a fresh array every render would rebuild the book's sheets.
+  const bookPages = useMemo(() => basePages.map((url) => withSize(url, "preview")), [
+    basePages,
+  ]);
 
   // Jump to the first match as the user types.
   useEffect(() => {
@@ -231,14 +235,14 @@ export default function FlipBookPage() {
         >
           {isDesktop ? (
             <FlipBookScene
-              pages={pages}
+              pages={bookPages}
               onPageChange={handlePageChange}
               spread
               controllerRef={controllerRef}
             />
           ) : (
             <FlipBookMobile
-              pages={pages}
+              pages={bookPages}
               currentPage={currentPage}
               onPageChange={handlePageChange}
               controllerRef={controllerRef}
@@ -248,7 +252,7 @@ export default function FlipBookPage() {
       </div>
 
       {/* Bottom toolbar — all controls in one row */}
-      {pages.length > 0 && (
+      {bookPages.length > 0 && (
         <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2">
           <div className="w-px h-6 bg-border mx-1" />
 
@@ -261,7 +265,7 @@ export default function FlipBookPage() {
           </button>
 
           <span className="text-text-subtle text-sm tabular-nums min-w-[5rem] text-center">
-            Page {currentPage} of {pages.length}
+            Page {currentPage} of {bookPages.length}
           </span>
 
           <button
@@ -309,9 +313,9 @@ export default function FlipBookPage() {
       {zoomPage !== null && (
         <Suspense fallback={null}>
           <PageZoomOverlay
-            src={pages[Math.min(Math.max(zoomPage - 1, 0), pages.length - 1)] ?? null}
+            src={bookPages[Math.min(Math.max(zoomPage - 1, 0), bookPages.length - 1)] ?? null}
             page={zoomPage}
-            total={pages.length}
+            total={bookPages.length}
             onClose={() => setZoomPage(null)}
           />
         </Suspense>
@@ -321,7 +325,7 @@ export default function FlipBookPage() {
       {gridOpen && (
         <Suspense fallback={null}>
           <PageGridView
-            pages={pages}
+            pages={basePages}
             currentPage={currentPage}
             title={data?.title || `Class of ${year || "..."}`}
             onSelect={jumpToPage}
