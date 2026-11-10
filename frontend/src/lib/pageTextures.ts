@@ -50,16 +50,50 @@ function createPageMaterial(face: 0 | 1): THREE.MeshStandardMaterial {
   });
 }
 
+/**
+ * Load a blob into an HTMLImageElement.
+ *
+ * An <img> is deliberate: three.js's WebGL uploader only applies
+ * UNPACK_FLIP_Y_WEBGL when the texture's image is NOT an ImageBitmap
+ * (WebGLTextures.js — `isImageBitmap === false` branch). ImageBitmap uploads
+ * are assumed to be pre-oriented, so textures built from them render upside
+ * down. TextureLoader uses an Image element, which is why the pages were
+ * oriented correctly before.
+ */
+function loadImageElement(url: string): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => {
+      // Fully decode before the blob URL is revoked so the texture has data.
+      if (typeof image.decode === "function") {
+        image.decode().then(
+          () => resolve(image),
+          () => resolve(image)
+        );
+      } else {
+        resolve(image);
+      }
+    };
+    image.onerror = () => reject(new Error("image load failed"));
+    image.src = url;
+  });
+}
+
 async function decodeTexture(blob: Blob): Promise<THREE.Texture> {
-  const bitmap = await createImageBitmap(blob);
-  const texture = new THREE.Texture(bitmap);
-  // Match quick_flipbook's own texture setup.
-  texture.magFilter = THREE.LinearFilter;
-  texture.minFilter = THREE.LinearFilter;
-  texture.generateMipmaps = false;
-  texture.colorSpace = THREE.SRGBColorSpace;
-  texture.needsUpdate = true;
-  return texture;
+  const url = URL.createObjectURL(blob);
+  try {
+    const image = await loadImageElement(url);
+    const texture = new THREE.Texture(image);
+    // Match quick_flipbook's own texture setup.
+    texture.magFilter = THREE.LinearFilter;
+    texture.minFilter = THREE.LinearFilter;
+    texture.generateMipmaps = false;
+    texture.colorSpace = THREE.SRGBColorSpace;
+    texture.needsUpdate = true;
+    return texture;
+  } finally {
+    URL.revokeObjectURL(url);
+  }
 }
 
 export interface PageTextureManagerOptions {
