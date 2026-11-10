@@ -138,6 +138,7 @@ export class PageTextureManager {
 
     for (const material of this.materials) {
       // Textures are shared across materials and disposed separately.
+      if (!material || typeof material !== "object") continue;
       material.map = null;
       material.dispose();
     }
@@ -290,7 +291,9 @@ export class PageTextureManager {
     const index = this.urls.indexOf(url);
     if (index < 0) return;
     const material = this.materials[index];
-    if (!material) return;
+    // quick_flipbook pads odd-length page arrays by pushing "" onto the array
+    // it is given; if that padding ever lands in our list, skip it.
+    if (!material || typeof material !== "object") return;
     material.map = texture;
     material.needsUpdate = true;
   }
@@ -303,6 +306,7 @@ export class PageTextureManager {
     this.textures.clear();
 
     for (const material of this.materials) {
+      if (!material || typeof material !== "object") continue;
       material.map = null;
       material.dispose();
     }

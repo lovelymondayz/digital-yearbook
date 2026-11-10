@@ -66,7 +66,13 @@ function Book({
     // Pass materials rather than URLs: quick_flipbook's own loader fetches two
     // pages at a time and leaves the rest as blank sheets, which is what showed
     // up as gray pages. The manager already holds every page's bytes.
-    book.setPages(textureManager.setPageList(pages));
+    //
+    // The spread matters: quick_flipbook pads odd-length arrays by pushing ""
+    // onto the array it is handed (flipbook.mjs:121). Handing it the manager's
+    // own array let that padding leak back into `materials`, and the next
+    // dispose/setPageList then assigned `.map` on a string and threw during
+    // unmount — which destroyed the React tree and left a blank page.
+    book.setPages([...textureManager.setPageList(pages)]);
 
     if (spread && !openedRef.current) {
       // Open the book to progress 1 so both pages of the spread are visible
